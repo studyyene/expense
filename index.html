@@ -1453,7 +1453,7 @@
 
     <div class="container">
         <header>
-            <h1>💰 Expense tracker</h1>
+            <h1>💰 Expense Tracker</h1>
         </header>
 
         <!-- Credit Card Alerts -->
@@ -1469,6 +1469,7 @@
 
             <!-- Time Filter -->
             <div class="time-filter">
+                <button class="time-filter-btn" onclick="setTimeFilter('today', this)">Today</button>
                 <button class="time-filter-btn" onclick="setTimeFilter('week', this)">This Week</button>
                 <button class="time-filter-btn active" onclick="setTimeFilter('month', this)">This Month</button>
                 <button class="time-filter-btn" onclick="setTimeFilter('all', this)">All Time</button>
@@ -1486,8 +1487,8 @@
                     <div class="stat-value">₹<span id="budgetLeft">0</span></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Today's Spend</div>
-                    <div class="stat-value">₹<span id="todaySpent">0</span></div>
+                    <div class="stat-label">This Period</div>
+                    <div class="stat-value">₹<span id="periodSpent">0</span></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">People Owe Me</div>
@@ -1979,22 +1980,18 @@
 
         function getFilteredExpenses() {
             const now = new Date();
-            if (currentTimeFilter === 'all') return expenses;
-
-            if (currentTimeFilter === 'recurring') {
-                return expenses.filter(exp => exp.isRecurring);
-            }
-            
+            const today = now.toISOString().split('T')[0];
+            if (currentTimeFilter === 'all')       return expenses;
+            if (currentTimeFilter === 'today')     return expenses.filter(e => e.date === today);
+            if (currentTimeFilter === 'recurring') return expenses.filter(exp => exp.isRecurring);
             if (currentTimeFilter === 'week') {
                 const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
                 return expenses.filter(exp => new Date(exp.date) >= weekAgo);
             }
-            
             if (currentTimeFilter === 'month') {
                 const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
                 return expenses.filter(exp => new Date(exp.date) >= monthStart);
             }
-            
             return expenses;
         }
 
@@ -2095,26 +2092,23 @@
         // Dashboard
         function renderDashboard() {
             const filteredExpenses = getFilteredExpenses();
-            const today = new Date().toISOString().split('T')[0];
-            
-            const totalSpent = expenses.reduce((sum, exp) => sum + getMyShare(exp), 0);
-            const todaySpent = expenses.filter(e => e.date === today).reduce((sum, exp) => sum + getMyShare(exp), 0);
-            
+
+            const totalSpent   = expenses.reduce((sum, exp) => sum + getMyShare(exp), 0);
+            const periodSpent  = filteredExpenses.reduce((sum, exp) => sum + getMyShare(exp), 0);
+
             let oweMe = 0;
             expenses.filter(e => e.isShared).forEach(exp => {
                 const sharePerPerson = exp.amount / (roommates.length + 1);
                 oweMe += sharePerPerson * roommates.length;
             });
-            // Subtract settled amounts
             Object.values(settlements).forEach(v => oweMe -= v);
             oweMe = Math.max(0, oweMe);
 
-            const periodSpent = filteredExpenses.reduce((sum, exp) => sum + getMyShare(exp), 0);
             const budgetLeft = budget - periodSpent;
 
             document.getElementById('totalSpent').textContent  = totalSpent.toFixed(2);
             document.getElementById('budgetLeft').textContent  = budgetLeft.toFixed(2);
-            document.getElementById('todaySpent').textContent  = todaySpent.toFixed(2);
+            document.getElementById('periodSpent').textContent = periodSpent.toFixed(2);
             document.getElementById('oweMe').textContent       = oweMe.toFixed(2);
         }
 
