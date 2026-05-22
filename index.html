@@ -774,6 +774,120 @@
         .bank-amt { color: var(--primary); }
         .card-amt { color: var(--secondary); }
 
+        /* ── Donut Chart ── */
+        .donut-chart-wrap {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 8px 0;
+        }
+
+        .donut-svg {
+            width: 180px;
+            height: 180px;
+            flex-shrink: 0;
+            overflow: visible;
+        }
+
+        .donut-seg {
+            transition: transform 0.22s ease, opacity 0.22s ease;
+            transform-origin: 100px 100px;
+        }
+
+        .donut-seg:hover {
+            transform: scale(1.06);
+            transform-origin: 100px 100px;
+        }
+
+        .donut-total-label {
+            font-family: 'Work Sans', sans-serif;
+            font-size: 10px;
+            fill: var(--text-light);
+            font-weight: 500;
+        }
+
+        .donut-total-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            fill: var(--dark);
+            font-weight: 700;
+        }
+
+        .donut-legend {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.82rem;
+        }
+
+        .legend-item:hover { background: var(--bg); }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-icon { font-size: 0.9rem; flex-shrink: 0; }
+
+        .legend-name {
+            flex: 1;
+            color: var(--text);
+            text-transform: capitalize;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .legend-amount {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--dark);
+            white-space: nowrap;
+        }
+
+        .legend-pct {
+            color: var(--text-light);
+            font-size: 0.75rem;
+            min-width: 32px;
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .donut-chart-wrap {
+                flex-direction: column;
+                align-items: center;
+                gap: 16px;
+            }
+
+            .donut-svg {
+                width: 200px;
+                height: 200px;
+            }
+
+            .donut-legend {
+                width: 100%;
+            }
+
+            .legend-item {
+                font-size: 0.88rem;
+                padding: 7px 10px;
+            }
+        }
+
         /* Modal */
         .modal {
             display: none;
@@ -1122,6 +1236,12 @@
                 font-size: 1.1rem;
             }
 
+            /* Fix: stack Date + Paid By to avoid overlap */
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
             /* Expense items: bigger touch targets */
             .expense-item {
                 padding: 12px;
@@ -1369,9 +1489,7 @@
                 <div class="card-header">
                     <h2 class="card-title">Spending by Category</h2>
                 </div>
-                <div class="chart">
-                    <div class="chart-bars" id="categoryChart"></div>
-                </div>
+                <div id="categoryChartContainer"></div>
             </div>
         </div>
 
@@ -2123,26 +2241,93 @@
         }
 
         function renderCategoryChart() {
-            const chart = document.getElementById('categoryChart');
-            const categories = ['rent', 'food', 'transport', 'utilities', 'study', 'entertainment', 'personal', 'other'];
-            const filteredExpenses = getFilteredExpenses();
-            
-            const categoryTotals = categories.map(cat => ({
-                category: cat,
-                total: filteredExpenses.filter(exp => exp.category === cat).reduce((sum, exp) => sum + getMyShare(exp), 0)
-            }));
+            const container = document.getElementById('categoryChartContainer');
+            if (!container) return;
 
-            const maxTotal = Math.max(...categoryTotals.map(c => c.total), 1);
-            
-            chart.innerHTML = categoryTotals.map(cat => {
-                const height = (cat.total / maxTotal) * 100;
-                return `
-                    <div class="chart-bar" style="height: ${height}%;">
-                        <div class="chart-bar-value">₹${cat.total.toFixed(0)}</div>
-                        <div class="chart-bar-label">${cat.category}</div>
-                    </div>
-                `;
+            const CAT_META = {
+                rent:          { color: '#74b9ff', icon: '🏠' },
+                food:          { color: '#ff9f7f', icon: '🍽️' },
+                transport:     { color: '#a29bfe', icon: '🚌' },
+                utilities:     { color: '#ffd32a', icon: '⚡' },
+                study:         { color: '#00cec9', icon: '📚' },
+                entertainment: { color: '#ff7675', icon: '🎮' },
+                personal:      { color: '#fd79a8', icon: '🧴' },
+                other:         { color: '#b2bec3', icon: '📦' }
+            };
+
+            const filteredExpenses = getFilteredExpenses();
+            const cats = Object.keys(CAT_META).map(cat => ({
+                cat,
+                total: filteredExpenses.filter(e => e.category === cat).reduce((s, e) => s + getMyShare(e), 0),
+                ...CAT_META[cat]
+            })).filter(c => c.total > 0).sort((a, b) => b.total - a.total);
+
+            const grandTotal = cats.reduce((s, c) => s + c.total, 0);
+
+            if (grandTotal === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div><p>No spending data yet</p></div>';
+                return;
+            }
+
+            // Build SVG donut
+            const cx = 100, cy = 100, R = 80, r = 50;
+            let angle = -Math.PI / 2;
+            const GAP = 0.025; // radians gap between segments
+
+            function pt(cx, cy, radius, a) {
+                return [cx + radius * Math.cos(a), cy + radius * Math.sin(a)];
+            }
+
+            function seg(start, end, R, r, color, index) {
+                const s = start + GAP / 2, e = end - GAP / 2;
+                const [ox1, oy1] = pt(cx, cy, R, s);
+                const [ox2, oy2] = pt(cx, cy, R, e);
+                const [ix1, iy1] = pt(cx, cy, r, e);
+                const [ix2, iy2] = pt(cx, cy, r, s);
+                const large = (e - s) > Math.PI ? 1 : 0;
+                const d = `M${ox1},${oy1} A${R},${R} 0 ${large} 1 ${ox2},${oy2} L${ix1},${iy1} A${r},${r} 0 ${large} 0 ${ix2},${iy2} Z`;
+                return `<path d="${d}" fill="${color}" class="donut-seg" data-i="${index}"
+                    onclick="highlightSegment(${index})" style="cursor:pointer">
+                    <title>${cats[index].cat}: ₹${cats[index].total.toFixed(0)}</title></path>`;
+            }
+
+            const paths = cats.map((c, i) => {
+                const sweep = (c.total / grandTotal) * 2 * Math.PI;
+                const path = seg(angle, angle + sweep, R, r, c.color, i);
+                angle += sweep;
+                return path;
             }).join('');
+
+            const legend = cats.map((c, i) => `
+                <div class="legend-item" onclick="highlightSegment(${i})">
+                    <span class="legend-dot" style="background:${c.color}"></span>
+                    <span class="legend-icon">${c.icon}</span>
+                    <span class="legend-name">${c.cat}</span>
+                    <span class="legend-amount">₹${c.total.toFixed(0)}</span>
+                    <span class="legend-pct">${((c.total / grandTotal) * 100).toFixed(0)}%</span>
+                </div>`).join('');
+
+            container.innerHTML = `
+                <div class="donut-chart-wrap">
+                    <svg viewBox="0 0 200 200" class="donut-svg" id="donutSvg">
+                        ${paths}
+                        <text x="100" y="95" text-anchor="middle" class="donut-total-label">TOTAL</text>
+                        <text x="100" y="116" text-anchor="middle" class="donut-total-value">₹${grandTotal.toFixed(0)}</text>
+                    </svg>
+                    <div class="donut-legend">${legend}</div>
+                </div>`;
+        }
+
+        function highlightSegment(idx) {
+            document.querySelectorAll('.donut-seg').forEach((el, i) => {
+                el.style.transform = i === idx ? 'scale(1.07)' : 'scale(1)';
+                el.style.opacity   = (i === idx || idx < 0) ? '1' : '0.55';
+            });
+            document.querySelectorAll('.legend-item').forEach((el, i) => {
+                el.style.fontWeight  = i === idx ? '700' : '';
+                el.style.background  = i === idx ? 'var(--bg)' : '';
+                el.style.borderRadius = '8px';
+            });
         }
 
         // Quick Add
