@@ -3,22 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Student Finance Pro</title>
+    <title>Expense Tracker</title>
     <!-- PWA iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Finance Pro">
+    <meta name="apple-mobile-web-app-title" content="Expense Tracker">
     <!-- PWA Android / Chrome -->
     <meta name="theme-color" content="#00b894">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Finance Pro">
+    <meta name="application-name" content="Expense Tracker">
     <!-- PWA manifest (dynamic) -->
     <link rel="manifest" id="pwa-manifest">
     <!-- Apple touch icons (inline SVG fallback) -->
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2300b894'/><text y='.9em' font-size='72' x='50%' text-anchor='middle'>💰</text></svg>">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Work+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
     <style>
+        /* Phosphor icon sizing helpers */
+        .ph { display:inline-flex; align-items:center; justify-content:center; }
+        .ph-sm  i.ph { font-size:16px; }
+        .ph-md  i.ph { font-size:20px; }
+        .ph-lg  i.ph { font-size:24px; }
+        .ph-xl  i.ph { font-size:28px; }
+        i.ph { line-height:1; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         /* ── Light Theme ── */
@@ -493,6 +501,47 @@
         .loan-btn-del  { border-color: var(--danger); color: var(--danger); }
         .loan-btn-del:hover  { background: var(--danger); color: white; }
 
+        /* ── Split UI ── */
+        .split-toggle-row { display:flex; gap:8px; }
+        .split-mode-btn {
+            flex:1; padding:9px 6px; border:1.5px solid var(--divider);
+            border-radius:var(--radius-sm); background:var(--input-bg);
+            font-family:'Work Sans',sans-serif; font-size:0.8rem; font-weight:600;
+            color:var(--text-sub); cursor:pointer; transition:var(--transition); text-align:center;
+        }
+        .split-mode-btn.active { border-color:var(--accent); background:rgba(124,106,247,0.1); color:var(--accent); }
+        .split-mode-btn:hover:not(.active) { border-color:var(--accent); color:var(--accent); }
+        .split-panel { margin-top:4px; }
+        .people-picker { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:10px; }
+        .person-chip {
+            padding:7px 14px; border-radius:50px; border:1.5px solid var(--divider);
+            background:var(--input-bg); font-family:'Work Sans',sans-serif;
+            font-size:0.82rem; font-weight:600; color:var(--text-sub);
+            cursor:pointer; transition:var(--transition);
+        }
+        .person-chip.selected { border-color:var(--primary); background:rgba(0,212,160,0.1); color:var(--primary); }
+        .split-custom-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+        .split-custom-row label { font-size:0.85rem; font-weight:600; color:var(--text); min-width:90px; text-transform:none; letter-spacing:0; }
+        .split-custom-row input { flex:1; }
+        .split-preview-box {
+            background:var(--bg2); border-radius:var(--radius-sm); padding:12px 14px;
+            border:1.5px solid var(--divider); margin-top:8px; font-size:0.83rem;
+        }
+        .split-preview-row { display:flex; justify-content:space-between; padding:3px 0; color:var(--text-sub); }
+        .split-preview-row.me { color:var(--primary); font-weight:700; }
+        .split-preview-row.warn { color:var(--danger); font-weight:700; }
+
+        /* ── Roommate item ── */
+        .btn-success { background:linear-gradient(135deg,var(--primary),var(--primary-dim)); color:white; box-shadow:var(--shadow-glow); }
+        .btn-success:hover { filter:brightness(1.08); }
+        .roommate-actions { display:flex; gap:7px; margin-top:10px; flex-wrap:wrap; }
+        .roommate-detail { font-size:0.78rem; color:var(--text-muted); margin-top:4px; }
+
+        /* ── Clear Data ── */
+        .danger-zone { background:rgba(255,94,122,0.06); border:1.5px solid rgba(255,94,122,0.2); border-radius:var(--radius-md); padding:16px; margin-bottom:16px; }
+        .danger-zone-title { font-weight:700; color:var(--danger); margin-bottom:4px; font-size:0.9rem; }
+        .danger-zone-sub { font-size:0.78rem; color:var(--text-muted); margin-bottom:12px; }
+
         /* ── Snackbar ── */
         .snackbar {
             position: fixed; bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px);
@@ -630,18 +679,18 @@
     <!-- Install Banner -->
     <div class="install-banner" id="installBanner">
         <div class="install-banner-text">
-            💰 Install Expense Tracker
+            <i class="ph-wallet ph-duotone" style="font-size:18px;color:white"></i> Install Expense Tracker
             <div class="install-banner-sub">Add to home screen for offline use</div>
         </div>
         <button class="install-banner-btn" onclick="triggerInstall()">Install</button>
-        <button class="install-banner-close" onclick="dismissBanner()">✕</button>
+        <button class="install-banner-close" onclick="dismissBanner()"><i class="ph-x ph-bold" style="font-size:14px;"></i></button>
     </div>
 
     <div class="container">
         <header>
-            <h1>💰 Expense Tracker</h1>
+            <h1><span style="display:inline-flex;align-items:center;gap:10px;"><i class="ph-wallet ph-duotone" style="font-size:28px;color:var(--primary)"></i>Expense Tracker</span></h1>
             <p class="subtitle">Track smarter. Spend wiser.</p>
-            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙 <span>Dark</span></button>
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle"><i class="ph-moon ph-bold" style="font-size:16px;"></i> <span>Dark</span></button>
         </header>
 
         <!-- Credit Card Alerts -->
@@ -661,28 +710,28 @@
                 <button class="time-filter-btn" onclick="setTimeFilter('week', this)">This Week</button>
                 <button class="time-filter-btn active" onclick="setTimeFilter('month', this)">This Month</button>
                 <button class="time-filter-btn" onclick="setTimeFilter('all', this)">All Time</button>
-                <button class="time-filter-btn recurring-btn" onclick="setTimeFilter('recurring', this)">🔁 Recurring</button>
+                <button class="time-filter-btn recurring-btn" onclick="setTimeFilter('recurring', this)"><i class="ph-arrows-clockwise ph-bold" style="font-size:13px;color:var(--accent)"></i> Recurring</button>
             </div>
 
             <!-- Dashboard Stats -->
             <div class="dashboard">
                 <div class="stat-card">
-                    <span class="stat-icon">💸</span>
+                    <span class="stat-icon"><i class="ph-arrow-up-right ph-duotone" style="font-size:26px;color:var(--primary)"></i></span>
                     <div class="stat-label">Total Spent</div>
                     <div class="stat-value">₹<span id="totalSpent">0</span></div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-icon">🎯</span>
+                    <span class="stat-icon"><i class="ph-target ph-duotone" style="font-size:26px;color:var(--accent)"></i></span>
                     <div class="stat-label">Budget Left</div>
-                    <div class="stat-value">₹<span id="budgetLeft">0</span></div>
+                    <div class="stat-value"><span id="budgetLeftCurrency" style="font-size:1.1rem;">₹</span><span id="budgetLeft">—</span></div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-icon">📅</span>
-                    <div class="stat-label">This Period</div>
+                    <span class="stat-icon"><i class="ph-calendar-check ph-duotone" style="font-size:26px;color:#74b9ff"></i></span>
+                    <div class="stat-label" id="periodLabel">This Month</div>
                     <div class="stat-value">₹<span id="periodSpent">0</span></div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-icon">🤝</span>
+                    <span class="stat-icon"><i class="ph-handshake ph-duotone" style="font-size:26px;color:var(--warn)"></i></span>
                     <div class="stat-label">Owed to Me</div>
                     <div class="stat-value">₹<span id="oweMe">0</span></div>
                 </div>
@@ -692,19 +741,20 @@
             <div class="main-content">
                 <div style="display:none" class="desktop-only-spacer"></div>
                 <div>
-                    <div class="card" style="margin-bottom: 15px;">
-                        <div class="card-header">
-                            <h2 class="card-title">Budget</h2>
-                            <button class="btn btn-secondary btn-small" onclick="openSetBudget()">Set</button>
+                    <div class="card budget-card" style="margin-bottom: 15px;">
+                        <div class="card-header" style="border-bottom:none;padding-bottom:0;margin-bottom:0;">
+                            <div>
+                                <h2 class="card-title">Monthly Budget</h2>
+                                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;" id="budgetMonthLabel"></div>
+                            </div>
+                            <button class="btn btn-secondary btn-small" onclick="openSetBudget()"><i class="ph-gear-six ph-bold" style="font-size:14px;"></i> Set</button>
                         </div>
-                        <div class="chart">
-                            <div class="chart-bars" id="budgetChart"></div>
-                        </div>
+                        <div id="budgetChart"></div>
                     </div>
                     <div class="card">
                         <div class="card-header">
                             <h2 class="card-title">Roommates</h2>
-                            <button class="btn btn-secondary btn-small" onclick="openAddRoommate()">+ Add</button>
+                            <button class="btn btn-secondary btn-small" onclick="openAddRoommate()"><i class="ph-plus ph-bold" style="font-size:14px;"></i> Add</button>
                         </div>
                         <div id="roommatesList"></div>
                     </div>
@@ -717,7 +767,7 @@
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title">Expenses</h2>
-                    <button class="btn btn-primary btn-small" onclick="openAddExpense()">+ Add</button>
+                    <button class="btn btn-primary btn-small" onclick="openAddExpense()"><i class="ph-plus ph-bold" style="font-size:14px;"></i> Add</button>
                 </div>
 
                 <div class="tabs">
@@ -745,15 +795,15 @@
                 <div class="card-header">
                     <h2 class="card-title">Payment Methods</h2>
                     <div class="btn-group">
-                        <button class="btn btn-secondary btn-small" onclick="openAddBank()">+ Bank</button>
-                        <button class="btn btn-secondary btn-small" onclick="openAddCreditCard()">+ Card</button>
+                        <button class="btn btn-secondary btn-small" onclick="openAddBank()"><i class="ph-bank ph-bold" style="font-size:14px;"></i> Bank</button>
+                        <button class="btn btn-secondary btn-small" onclick="openAddCreditCard()"><i class="ph-credit-card ph-bold" style="font-size:14px;"></i> Card</button>
                     </div>
                 </div>
                 <div class="pm-filter-row">
                     <button class="pm-filter-btn" onclick="setPaymentFilter('week', this)">This Week</button>
                     <button class="pm-filter-btn active" onclick="setPaymentFilter('month', this)">This Month</button>
                     <button class="pm-filter-btn" onclick="setPaymentFilter('all', this)">All</button>
-                    <button class="pm-filter-btn" onclick="setPaymentFilter('custom', this)">📅 Custom</button>
+                    <button class="pm-filter-btn" onclick="setPaymentFilter('custom', this)"><i class="ph-calendar-blank ph-bold" style="font-size:14px;"></i> Custom</button>
                 </div>
                 <div class="pm-custom-date" id="pmCustomDate" style="display:none;">
                     <div class="pm-date-row">
@@ -777,8 +827,8 @@
                 </div>
                 <div class="donut-filter-row">
                     <button class="donut-filter-btn" onclick="setDonutFilter('today', this)">Today</button>
-                    <button class="donut-filter-btn" onclick="setDonutFilter('week', this)">Weekly</button>
-                    <button class="donut-filter-btn active" onclick="setDonutFilter('month', this)">Monthly</button>
+                    <button class="donut-filter-btn" onclick="setDonutFilter('week', this)"><i class="ph-calendar" style="font-size:14px;"></i> Weekly</button>
+                    <button class="donut-filter-btn active" onclick="setDonutFilter('month', this)"><i class="ph-calendar-blank" style="font-size:14px;"></i> Monthly</button>
                     <button class="donut-filter-btn" onclick="setDonutFilter('all', this)">All Time</button>
                 </div>
                 <div id="categoryChartContainer"></div>
@@ -794,29 +844,48 @@
                         <h2 class="card-title">Budget</h2>
                         <button class="btn btn-secondary btn-small" onclick="openSetBudget()">Set</button>
                     </div>
-                    <div class="chart"><div class="chart-bars" id="budgetChart2"></div></div>
+                    <div class="card budget-card" style="margin-bottom:15px;">
+                        <div class="card-header" style="border-bottom:none;padding-bottom:0;margin-bottom:0;">
+                            <div>
+                                <h2 class="card-title">Monthly Budget</h2>
+                                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;" id="budgetMonthLabel2"></div>
+                            </div>
+                            <button class="btn btn-secondary btn-small" onclick="openSetBudget()"><i class="ph-gear-six ph-bold" style="font-size:14px;"></i> Set</button>
+                        </div>
+                        <div id="budgetChart2"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- Friends Loans -->
             <div class="card" style="margin-bottom:16px;">
                 <div class="card-header">
-                    <h2 class="card-title">🤝 Friend Loans</h2>
-                    <button class="btn btn-primary btn-small" onclick="openAddLoan()">+ Lend</button>
+                    <h2 class="card-title"><i class="ph-handshake ph-duotone" style="font-size:18px;color:var(--primary)"></i> Friend Loans</h2>
+                    <button class="btn btn-primary btn-small" onclick="openAddLoan()"><i class="ph-arrows-left-right ph-bold" style="font-size:14px;"></i> Lend</button>
                 </div>
                 <div class="loan-summary-row" id="loanSummaryRow"></div>
                 <div id="loansList"></div>
             </div>
 
             <!-- Actions -->
-            <div class="actions-bar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
-                <button class="btn btn-secondary" style="flex:1;" onclick="exportData()">📊 Export</button>
-                <button class="btn btn-secondary" style="flex:1;" onclick="importData()">📥 Import</button>
+            <div class="actions-bar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
+                <button class="btn btn-secondary" style="flex:1;" onclick="exportData()"><i class="ph-export ph-bold" style="font-size:16px;"></i> Export</button>
+                <button class="btn btn-secondary" style="flex:1;" onclick="importData()"><i class="ph-download-simple ph-bold" style="font-size:16px;"></i> Import</button>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="danger-zone">
+                <div class="danger-zone-title"><i class="ph-warning ph-bold" style="font-size:14px;color:var(--warn)"></i> Danger Zone</div>
+                <div class="danger-zone-sub">These actions are irreversible. All local data will be permanently deleted.</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-danger btn-small" onclick="clearAllData()" style="flex:1;"><i class="ph-trash ph-bold" style="font-size:15px;"></i> Clear All Data</button>
+                    <button class="btn btn-secondary btn-small" onclick="clearExpensesOnly()" style="flex:1;"><i class="ph-broom ph-bold" style="font-size:15px;"></i> Clear Expenses Only</button>
+                </div>
             </div>
 
             <!-- iOS install hint -->
             <div class="ios-install-hint" id="iosInstallHint" style="display:none; background:var(--card-bg); padding:16px; border-radius:12px; margin-bottom:16px; text-align:center;">
-                <div style="font-size:1.5rem; margin-bottom:8px;">📲</div>
+                <div style="font-size:1.5rem;margin-bottom:12px;"><i class="ph-device-mobile ph-duotone" style="font-size:36px;color:var(--primary)"></i></div>
                 <div style="font-weight:600; margin-bottom:4px;">Install on iPhone</div>
                 <div style="font-size:0.85rem; color:var(--text-muted);">Tap <strong>Share</strong> (□↑) then <strong>"Add to Home Screen"</strong></div>
             </div>
@@ -824,9 +893,9 @@
             <!-- Credit -->
             <div style="text-align:center; padding: 24px 0 8px; user-select:none;">
                 <div style="display:inline-flex; align-items:center; gap:8px; background:var(--card-bg); border:1.5px solid var(--divider); border-radius:50px; padding:10px 20px; box-shadow:var(--shadow-sm);">
-                    <span style="font-size:1rem;">✦</span>
+                    <span style="font-size:1rem;">&#10022;</span>
                     <span style="font-family:'Outfit',sans-serif; font-size:0.88rem; font-weight:700; background:linear-gradient(135deg,var(--primary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; letter-spacing:0.3px;">crafted by @anshid</span>
-                    <span style="font-size:1rem;">✦</span>
+                    <span style="font-size:1rem;">&#10022;</span>
                 </div>
             </div>
         </div>
@@ -834,31 +903,31 @@
 
         <!-- Actions (desktop only) -->
         <div class="desktop-actions" style="text-align: center; margin-top: 25px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <button class="btn btn-secondary" onclick="exportData()">📊 Export</button>
-            <button class="btn btn-secondary" onclick="importData()">📥 Import</button>
+            <button class="btn btn-secondary" onclick="exportData()"><i class="ph-export ph-bold" style="font-size:16px;"></i> Export</button>
+            <button class="btn btn-secondary" onclick="importData()"><i class="ph-download-simple ph-bold" style="font-size:16px;"></i> Import</button>
         </div>
     </div>
 
     <!-- Bottom Navigation (mobile) -->
     <nav class="bottom-nav" id="bottomNav">
         <button class="nav-btn active" id="nav-home" onclick="switchSection('home')">
-            <span class="nav-icon">🏠</span>
+            <span class="nav-icon"><i class="ph-house-simple ph-duotone" style="font-size:24px;"></i></span>
             Home
         </button>
         <button class="nav-btn" id="nav-expenses" onclick="switchSection('expenses')">
-            <span class="nav-icon">💸</span>
+            <span class="nav-icon"><i class="ph-receipt ph-duotone" style="font-size:24px;"></i></span>
             Expenses
         </button>
         <button class="nav-btn nav-add" onclick="openAddExpense()">
-            <span class="nav-icon">＋</span>
+            <span class="nav-icon"><i class="ph-plus-circle ph-fill" style="font-size:28px;color:white"></i></span>
             Add
         </button>
         <button class="nav-btn" id="nav-payments" onclick="switchSection('payments')">
-            <span class="nav-icon">💳</span>
+            <span class="nav-icon"><i class="ph-credit-card ph-duotone" style="font-size:24px;"></i></span>
             Payments
         </button>
         <button class="nav-btn" id="nav-more" onclick="switchSection('more')">
-            <span class="nav-icon">⋯</span>
+            <span class="nav-icon"><i class="ph-dots-three-outline ph-duotone" style="font-size:24px;"></i></span>
             More
         </button>
     </nav>
@@ -866,12 +935,12 @@
     <!-- Snackbar -->
     <div class="snackbar" id="snackbar"></div>
 
-    <!-- Add Expense Modal -->
+    <!-- <span style="display:inline-flex;align-items:center;gap:8px;"><i class="ph-plus-circle ph-duotone" style="font-size:20px;color:var(--primary)"></i>Add Expense</span> Modal -->
     <div class="modal" id="addExpenseModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="card-title">Add Expense</h2>
-                <button class="close-modal" onclick="closeModal('addExpenseModal')">&times;</button>
+                <h2 class="card-title"><span style="display:inline-flex;align-items:center;gap:8px;"><i class="ph-plus-circle ph-duotone" style="font-size:20px;color:var(--primary)"></i>Add Expense</span></h2>
+                <button class="close-modal" onclick="closeModal('addExpenseModal')"><i class="ph-x ph-bold" style="font-size:16px;"></i></button>
             </div>
             <form onsubmit="addExpense(event)">
                 <div class="form-group">
@@ -907,17 +976,35 @@
                         <option value="">Select payment method</option>
                     </select>
                 </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="isShared" onchange="updateSplitPreview()">
-                    <label for="isShared" style="margin: 0;">Split with roommates</label>
+                <div class="form-group">
+                    <label>Split</label>
+                    <div class="split-toggle-row">
+                        <button type="button" class="split-mode-btn active" id="splitModeNone"   onclick="setSplitMode('none')"><i class="ph-user ph-bold" style="font-size:14px;"></i> Only Me</button>
+                        <button type="button" class="split-mode-btn"        id="splitModeEqual"  onclick="setSplitMode('equal')"><i class="ph-scales ph-bold" style="font-size:14px;"></i> Equal</button>
+                        <button type="button" class="split-mode-btn"        id="splitModeCustom" onclick="setSplitMode('custom')"><i class="ph-pencil-simple ph-bold" style="font-size:14px;"></i> Custom</button>
+                    </div>
+                    <input type="hidden" id="splitMode" value="none">
+                </div>
+                <!-- Equal split: pick who's included -->
+                <div id="splitEqualPanel" style="display:none;" class="split-panel">
+                    <label style="margin-bottom:8px;">Select who splits</label>
+                    <div id="splitEqualPeople" class="people-picker"></div>
+                    <input type="hidden" id="splitEqualList" value="[]">
+                    <div id="splitEqualPreview" class="split-preview-box" style="display:none;"></div>
+                </div>
+                <!-- Custom split: enter each person's amount -->
+                <div id="splitCustomPanel" style="display:none;" class="split-panel">
+                    <label style="margin-bottom:8px;">Enter each person's share</label>
+                    <div id="splitCustomFields"></div>
+                    <div id="splitCustomPreview" class="split-preview-box" style="display:none;"></div>
                 </div>
                 <div class="form-group">
-                    <label>🔁 Recurring Frequency</label>
+                    <label><i class="ph-arrows-clockwise ph-bold" style="font-size:16px;color:var(--accent)"></i> Recurring Frequency</label>
                     <div class="recurring-selector" id="recurringSelector">
-                        <button type="button" class="recur-btn active" data-value="none" onclick="selectRecurring(this)">None</button>
-                        <button type="button" class="recur-btn" data-value="daily" onclick="selectRecurring(this)">Daily</button>
-                        <button type="button" class="recur-btn" data-value="weekly" onclick="selectRecurring(this)">Weekly</button>
-                        <button type="button" class="recur-btn" data-value="monthly" onclick="selectRecurring(this)">Monthly</button>
+                        <button type="button" class="recur-btn active" data-value="none" onclick="selectRecurring(this)"><i class="ph-minus-circle" style="font-size:14px;"></i> None</button>
+                        <button type="button" class="recur-btn" data-value="daily" onclick="selectRecurring(this)"><i class="ph-sun" style="font-size:14px;"></i> Daily</button>
+                        <button type="button" class="recur-btn" data-value="weekly" onclick="selectRecurring(this)"><i class="ph-calendar" style="font-size:14px;"></i> Weekly</button>
+                        <button type="button" class="recur-btn" data-value="monthly" onclick="selectRecurring(this)"><i class="ph-calendar-blank" style="font-size:14px;"></i> Monthly</button>
                     </div>
                     <input type="hidden" id="recurringFrequency" value="none">
                 </div>
@@ -944,7 +1031,7 @@
                     </div>
                 </div>
                 <div id="splitPreview" class="split-info" style="display: none;"></div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">Add Expense</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;"><span style="display:inline-flex;align-items:center;gap:8px;"><i class="ph-plus-circle ph-duotone" style="font-size:20px;color:var(--primary)"></i>Add Expense</span></button>
             </form>
         </div>
     </div>
@@ -954,7 +1041,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="card-title">Set Monthly Budget</h2>
-                <button class="close-modal" onclick="closeModal('setBudgetModal')">&times;</button>
+                <button class="close-modal" onclick="closeModal('setBudgetModal')"><i class="ph-x ph-bold" style="font-size:16px;"></i></button>
             </div>
             <form onsubmit="setBudget(event)">
                 <div class="form-group">
@@ -971,7 +1058,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="card-title">Add Roommate</h2>
-                <button class="close-modal" onclick="closeModal('addRoommateModal')">&times;</button>
+                <button class="close-modal" onclick="closeModal('addRoommateModal')"><i class="ph-x ph-bold" style="font-size:16px;"></i></button>
             </div>
             <form onsubmit="addRoommate(event)">
                 <div class="form-group">
@@ -988,7 +1075,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="card-title">Add Bank Account</h2>
-                <button class="close-modal" onclick="closeModal('addBankModal')">&times;</button>
+                <button class="close-modal" onclick="closeModal('addBankModal')"><i class="ph-x ph-bold" style="font-size:16px;"></i></button>
             </div>
             <form onsubmit="addBankAccount(event)">
                 <div class="form-group">
@@ -1005,7 +1092,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="card-title">Add Credit Card</h2>
-                <button class="close-modal" onclick="closeModal('addCreditCardModal')">&times;</button>
+                <button class="close-modal" onclick="closeModal('addCreditCardModal')"><i class="ph-x ph-bold" style="font-size:16px;"></i></button>
             </div>
             <form onsubmit="addCreditCard(event)">
                 <div class="form-group">
@@ -1025,8 +1112,8 @@
     <div class="modal" id="addLoanModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="card-title">🤝 Lend Money to Friend</h2>
-                <button class="close-modal" onclick="closeModal('addLoanModal')">&times;</button>
+                <h2 class="card-title"><i class="ph-handshake ph-duotone" style="font-size:20px;color:var(--primary)"></i> Lend Money to Friend</h2>
+                <button class="close-modal" onclick="closeModal('addLoanModal')"><i class="ph-x ph-bold" style="font-size:16px;"></i></button>
             </div>
             <form onsubmit="addLoan(event)">
                 <div class="form-group">
@@ -1045,7 +1132,7 @@
                     <label>Date</label>
                     <input type="date" id="loanDate" required>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px;">💸 Lend</button>
+                <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px;"><i class="ph-arrow-up-right ph-bold" style="font-size:14px;"></i> Lend</button>
             </form>
         </div>
     </div>
@@ -1054,8 +1141,8 @@
     <div class="modal" id="repayModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="card-title" id="repayModalTitle">Repayment</h2>
-                <button class="close-modal" onclick="closeModal('repayModal')">&times;</button>
+                <h2 class="card-title" id="repayModalTitle"><i class="ph-arrow-u-left-down ph-duotone" style="font-size:18px;color:var(--primary)"></i> Repayment</h2>
+                <button class="close-modal" onclick="closeModal('repayModal')"><i class="ph-x ph-bold" style="font-size:16px;"></i></button>
             </div>
             <div class="form-group">
                 <label>Amount Received (₹)</label>
@@ -1066,7 +1153,7 @@
                 <input type="text" id="repayNote" placeholder="e.g., Paid via UPI">
             </div>
             <input type="hidden" id="repayLoanId">
-            <button class="btn btn-primary" style="width:100%;" onclick="submitRepay()">✅ Record Repayment</button>
+            <button class="btn btn-primary" style="width:100%;" onclick="submitRepay()"><i class="ph-check-circle ph-bold" style="font-size:14px;"></i> Record <i class="ph-arrow-u-left-down ph-duotone" style="font-size:18px;color:var(--primary)"></i> Repayment</button>
         </div>
     </div>
 
@@ -1212,7 +1299,7 @@
             if (savedTheme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
                 const btn = document.getElementById('themeToggle');
-                if (btn) btn.innerHTML = '☀️ <span>Light</span>';
+                if (btn) btn.innerHTML = '<i class="ph-sun ph-bold" style="font-size:16px;"></i> <span>Light</span>';
             }
             document.getElementById('expenseDate').valueAsDate = new Date();
             if (document.getElementById('loanDate')) document.getElementById('loanDate').valueAsDate = new Date();
@@ -1247,6 +1334,16 @@
             currentTimeFilter = filter;
             document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            // Update "This Period" stat card label to match active filter
+            const labelMap = {
+                today: "Today's Spend",
+                week:  "This Week",
+                month: "This Month",
+                all:   "All-time Spend",
+                recurring: "Recurring Total"
+            };
+            const periodLabelEl = document.getElementById('periodLabel');
+            if (periodLabelEl) periodLabelEl.textContent = labelMap[filter] || 'This Period';
             renderAll();
         }
 
@@ -1353,35 +1450,66 @@
 
         // Calculate MY share only
         function getMyShare(expense) {
-            if (!expense.isShared) {
-                return expense.amount;
+            if (!expense.isShared) return expense.amount;
+            // Custom split: stored as {me: X, name: X, ...}
+            if (expense.splitMode === 'custom' && expense.customShares) {
+                return expense.customShares['me'] || 0;
             }
-            // Shared expense: divide by total people (me + roommates)
-            const totalPeople = roommates.length + 1;
-            return expense.amount / totalPeople;
+            // Equal split: among selected people (me + chosen roommates)
+            const participants = expense.splitWith && expense.splitWith.length > 0
+                ? expense.splitWith.length + 1   // roommates chosen + me
+                : roommates.length + 1;           // legacy: all roommates
+            return expense.amount / participants;
         }
 
         // Dashboard
         function renderDashboard() {
             const filteredExpenses = getFilteredExpenses();
+            const totalSpent  = expenses.reduce((sum, exp) => sum + getMyShare(exp), 0);
+            const periodSpent = filteredExpenses.reduce((sum, exp) => sum + getMyShare(exp), 0);
 
-            const totalSpent   = expenses.reduce((sum, exp) => sum + getMyShare(exp), 0);
-            const periodSpent  = filteredExpenses.reduce((sum, exp) => sum + getMyShare(exp), 0);
-
-            let oweMe = 0;
-            expenses.filter(e => e.isShared).forEach(exp => {
-                const sharePerPerson = exp.amount / (roommates.length + 1);
-                oweMe += sharePerPerson * roommates.length;
+            // Budget left always = this calendar month vs set budget
+            const now = new Date();
+            const monthExpenses = expenses.filter(e => {
+                const d = new Date(e.date);
+                return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
             });
-            Object.values(settlements).forEach(v => oweMe -= v);
-            oweMe = Math.max(0, oweMe);
+            const monthSpent = monthExpenses.reduce((sum, exp) => sum + getMyShare(exp), 0);
+            const budgetLeft = budget > 0 ? budget - monthSpent : null;
 
-            const budgetLeft = budget - periodSpent;
+            // oweMe: use calculateRoommateBalance for accuracy
+            let oweMe = roommates.reduce((sum, rm) => {
+                const bal = calculateRoommateBalance(rm.name);
+                return sum + (bal > 0 ? bal : 0);
+            }, 0);
+
+            // Period label
+            const labelMap = { today:"Today's Spend", week:"This Week", month:"This Month", all:"All-time", recurring:"Recurring" };
+            const periodLabelEl = document.getElementById('periodLabel');
+            if (periodLabelEl) periodLabelEl.textContent = labelMap[currentTimeFilter] || 'This Period';
 
             document.getElementById('totalSpent').textContent  = totalSpent.toFixed(2);
-            document.getElementById('budgetLeft').textContent  = budgetLeft.toFixed(2);
             document.getElementById('periodSpent').textContent = periodSpent.toFixed(2);
             document.getElementById('oweMe').textContent       = oweMe.toFixed(2);
+
+            // Budget left — colour coded, hide ₹ prefix when no budget
+            const budgetLeftEl  = document.getElementById('budgetLeft');
+            const budgetCurrEl  = document.getElementById('budgetLeftCurrency');
+            if (budgetLeft === null) {
+                if (budgetCurrEl) budgetCurrEl.style.display = 'none';
+                budgetLeftEl.textContent = 'Not set';
+                budgetLeftEl.style.color = 'var(--text-muted)';
+                budgetLeftEl.style.fontSize = '1rem';
+            } else {
+                if (budgetCurrEl) budgetCurrEl.style.display = '';
+                const pct = monthSpent / budget;
+                budgetLeftEl.textContent = budgetLeft.toFixed(2);
+                budgetLeftEl.style.fontSize = '';
+                budgetLeftEl.style.color =
+                    pct >= 1   ? 'var(--danger)' :
+                    pct >= 0.8 ? 'var(--warn)'   :
+                                 'var(--primary)';
+            }
         }
 
         // Expenses
@@ -1396,7 +1524,7 @@
             sharedList.innerHTML = '';
 
             if (filteredExpenses.length === 0) {
-                allList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No expenses</p></div>';
+                allList.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-receipt ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4"></i></div><p>No expenses</p></div>';
                 return;
             }
 
@@ -1412,10 +1540,10 @@
             });
 
             if (personalList.innerHTML === '') {
-                personalList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No personal expenses</p></div>';
+                personalList.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-receipt ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4"></i></div><p>No personal expenses</p></div>';
             }
             if (sharedList.innerHTML === '') {
-                sharedList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No shared expenses</p></div>';
+                sharedList.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-receipt ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4"></i></div><p>No shared expenses</p></div>';
             }
         }
 
@@ -1431,20 +1559,23 @@
 
             let shareInfo = '';
             if (exp.isShared) {
-                shareInfo = `<small style="color: var(--text-muted);">(Total: ₹${exp.amount.toFixed(2)}, My share: ₹${myShare.toFixed(2)})</small>`;
+                const myShare2 = myShare;
+                const who = exp.splitWith && exp.splitWith.length > 0 ? exp.splitWith.join(', ') : 'all';
+                const modeLabel = exp.splitMode === 'custom' ? 'custom' : 'equal';
+                shareInfo = `<small style="color:var(--text-muted);display:block;margin-top:2px;">Split ${modeLabel} with ${who} · Your share: ₹${myShare2.toFixed(2)}</small>`;
             }
 
             const isPaused = exp.recurStatus === 'paused';
             const freqLabel = exp.recurringFrequency ? exp.recurringFrequency.charAt(0).toUpperCase() + exp.recurringFrequency.slice(1) : '';
             const recurBadgeClass = isPaused ? 'recur-none' : `recur-${exp.recurringFrequency || 'monthly'}`;
-            const recurBadgeText = isPaused ? `⏸ Paused (${freqLabel})` : `🔁 ${freqLabel}`;
+            const recurBadgeText = isPaused ? `<i class="ph-pause ph-bold" style="font-size:13px;"></i> Paused (${freqLabel})` : `<i class="ph-arrows-clockwise ph-bold" style="font-size:12px;color:inherit"></i> ${freqLabel}`;
 
             const recurControls = exp.isRecurring ? `
                 <div class="recur-controls">
                     ${isPaused
-                        ? `<button class="recur-ctrl-btn resume" onclick="recurringControl(${index},'resume')">▶ Resume</button>`
-                        : `<button class="recur-ctrl-btn pause"  onclick="recurringControl(${index},'pause')">⏸ Pause</button>`}
-                    <button class="recur-ctrl-btn stop" onclick="recurringControl(${index},'stop')">⏹ Stop</button>
+                        ? `<button class="recur-ctrl-btn resume" onclick="recurringControl(${index},'resume')"><i class="ph-play ph-bold" style="font-size:13px;"></i> Resume</button>`
+                        : `<button class="recur-ctrl-btn pause"  onclick="recurringControl(${index},'pause')"><i class="ph-pause ph-bold" style="font-size:13px;"></i> Pause</button>`}
+                    <button class="recur-ctrl-btn stop" onclick="recurringControl(${index},'stop')"><i class="ph-stop ph-bold" style="font-size:13px;"></i> Stop</button>
                 </div>` : '';
             
             return `
@@ -1463,7 +1594,7 @@
                     <div style="display: flex; align-items: center;">
                         <div class="expense-amount ${typeClass}">₹${myShare.toFixed(2)}</div>
                         <div class="expense-actions">
-                            <button class="icon-btn" onclick="deleteExpense(${index})" title="Delete">🗑️</button>
+                            <button class="icon-btn" onclick="deleteExpense(${index})" title="Delete"><i class="ph-trash-simple ph-bold" style="font-size:15px;"></i></button>
                         </div>
                     </div>
                 </div>
@@ -1473,62 +1604,118 @@
         // Roommates
         function renderRoommates() {
             const list = document.getElementById('roommatesList');
-            
             if (roommates.length === 0) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><p>Add roommates to split expenses</p></div>';
+                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-users-three ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4"></i></div><p>Add roommates to split expenses</p></div>';
                 return;
             }
+            list.innerHTML = roommates.map((rm, idx) => {
+                const balance    = calculateRoommateBalance(rm.name);
+                const absBalance = Math.abs(balance);
+                const isPositive = balance > 0;
+                const isZero     = Math.abs(balance) < 0.01;
 
-            list.innerHTML = roommates.map((rm, index) => {
-                const balance = calculateRoommateBalance(rm.name);
-                const balanceClass = balance > 0 ? 'positive' : balance < 0 ? 'negative' : '';
-                const balanceText = balance > 0 ? `owes you ₹${balance.toFixed(2)}` : balance < 0 ? `you owe ₹${Math.abs(balance).toFixed(2)}` : 'settled';
-                
+                const balanceColor = isZero ? 'var(--text-muted)' : isPositive ? 'var(--primary)' : 'var(--danger)';
+                const balanceLabel = isZero
+                    ? '<i class="ph-check-circle ph-bold" style="font-size:13px;"></i> All settled'
+                    : isPositive
+                    ? `Owes you ₹${absBalance.toFixed(2)}`
+                    : `You owe ₹${absBalance.toFixed(2)}`;
+
+                // Count shared expenses this person is in
+                const sharedCount = expenses.filter(e => {
+                    if (!e.isShared) return false;
+                    const all = !e.splitWith || e.splitWith.length === 0;
+                    return all || (e.splitWith && e.splitWith.includes(rm.name));
+                }).length;
+
                 return `
-                    <div class="roommate-item">
-                        <div class="roommate-header">
-                            <div class="roommate-name">${rm.name}</div>
-                            <div class="roommate-balance ${balanceClass}">${balanceText}</div>
+                <div class="roommate-item">
+                    <div class="roommate-header">
+                        <div>
+                            <div class="roommate-name"><i class="ph-user-circle ph-duotone" style="font-size:16px;color:var(--accent)"></i> ${rm.name}</div>
+                            <div class="roommate-detail">${sharedCount} shared expense${sharedCount!==1?'s':''}</div>
                         </div>
-                        ${balance !== 0 ? `<button class="btn btn-success btn-small" onclick="settleWithRoommate('${rm.name}', ${balance})">Mark as Settled</button>` : ''}
+                        <div style="text-align:right;">
+                            <div style="font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:800;color:${balanceColor};">${balanceLabel}</div>
+                            ${!isZero && (settlements[rm.name]||0)>0 ? `<div style="font-size:0.72rem;color:var(--text-muted);">₹${(settlements[rm.name]||0).toFixed(2)} already settled</div>` : ''}
+                        </div>
                     </div>
-                `;
+                    <div class="roommate-actions">
+                        ${isPositive && !isZero ? `
+                            <button class="btn btn-primary btn-small" onclick="settleWithRoommate('${rm.name}')"><i class="ph-check-circle ph-bold" style="font-size:14px;"></i> Mark Settled</button>
+                            <button class="btn btn-secondary btn-small" onclick="partialSettleWithRoommate('${rm.name}')"><i class="ph-coins ph-bold" style="font-size:14px;"></i> Partial</button>
+                        ` : ''}
+                        <button class="btn btn-secondary btn-small" onclick="deleteRoommate(${idx})" style="border-color:var(--danger);color:var(--danger);"><i class="ph-trash-simple ph-bold" style="font-size:15px;"></i></button>
+                    </div>
+                </div>`;
             }).join('');
         }
 
         function calculateRoommateBalance(name) {
-            let balance = 0;
-            const sharedExpenses = expenses.filter(exp => exp.isShared);
-            
-            sharedExpenses.forEach(exp => {
-                const sharePerPerson = exp.amount / (roommates.length + 1);
-                balance += sharePerPerson; // They owe me their share
-            });
+            // Sum what THIS roommate owes me from shared expenses they're included in
+            let owesMe = 0;
+            expenses.filter(exp => exp.isShared).forEach(exp => {
+                const includedAll  = !exp.splitWith || exp.splitWith.length === 0;
+                const includedThis = includedAll || exp.splitWith.includes(name);
+                if (!includedThis) return;
 
-            // Subtract any amounts already settled
-            balance -= (settlements[name] || 0);
-            
-            return balance;
+                if (exp.splitMode === 'custom' && exp.customShares) {
+                    owesMe += exp.customShares[name] || 0;
+                } else {
+                    // Equal split
+                    const participants = includedAll
+                        ? roommates.length + 1
+                        : exp.splitWith.length + 1;
+                    owesMe += exp.amount / participants;
+                }
+            });
+            // Subtract what's already been settled
+            owesMe -= (settlements[name] || 0);
+            return owesMe;
         }
 
-        function settleWithRoommate(name, amount) {
-            if (confirm(`Mark ₹${Math.abs(amount).toFixed(2)} as settled with ${name}?`)) {
-                // Record settlement - add to their settled total
+        function settleWithRoommate(name) {
+            const balance = calculateRoommateBalance(name);
+            if (balance <= 0) { showSnackbar('Nothing to settle'); return; }
+            if (confirm(`Mark ₹${balance.toFixed(2)} as settled with ${name}?`)) {
                 if (!settlements[name]) settlements[name] = 0;
-                settlements[name] += Math.abs(amount);
+                settlements[name] += balance;
                 saveData();
                 renderAll();
-                showSnackbar(`✅ Settled ₹${Math.abs(amount).toFixed(2)} with ${name}`);
+                showSnackbar(`<i class="ph-check-circle ph-bold" style="font-size:12px;"></i> Settled ₹${balance.toFixed(2)} with ${name}`);
             }
+        }
+
+        function partialSettleWithRoommate(name) {
+            const balance = calculateRoommateBalance(name);
+            if (balance <= 0) { showSnackbar('Nothing to settle'); return; }
+            const input = prompt(`Enter amount received from ${name} (max ₹${balance.toFixed(2)}):`);
+            const amt = parseFloat(input);
+            if (isNaN(amt) || amt <= 0) return;
+            if (amt > balance) { showSnackbar('Amount exceeds balance'); return; }
+            if (!settlements[name]) settlements[name] = 0;
+            settlements[name] += amt;
+            saveData();
+            renderAll();
+            showSnackbar(`<i class="ph-coins ph-bold" style="font-size:14px;"></i> ₹${amt.toFixed(2)} recorded from ${name}`);
+        }
+
+        function deleteRoommate(index) {
+            const rm = roommates[index];
+            if (!confirm(`Remove ${rm.name}? Their split history will be preserved.`)) return;
+            roommates.splice(index, 1);
+            saveData();
+            renderAll();
+            showSnackbar(`${rm.name} removed`);
         }
 
         // Payment Methods
         function updatePaymentMethodDropdown() {
             const dropdown = document.getElementById('expensePaymentMethod');
             const allMethods = [
-                { id: 'cash', label: '💵 Cash', name: 'Cash' },
-                ...bankAccounts.map(b => ({ ...b, label: `🏦 ${b.name} (Bank)` })),
-                ...creditCards.map(c => ({ ...c, label: `💳 ${c.name} (Card)` }))
+                { id: 'cash', label: '<i class="ph-money ph-duotone" style="font-size:15px;color:#27ae60"></i> Cash', name: 'Cash' },
+                ...bankAccounts.map(b => ({ ...b, label: `${b.name} (Bank)` })),
+                ...creditCards.map(c => ({ ...c, label: `${c.name} (Card)` }))
             ];
             dropdown.innerHTML = '<option value="">Select payment method</option>' +
                 allMethods.map(pm => `<option value="${pm.id}">${pm.label}</option>`).join('');
@@ -1550,22 +1737,22 @@
             let html = `
                 <div class="payment-summary-row" style="grid-template-columns:1fr 1fr 1fr;">
                     <div class="payment-summary-box" style="background:linear-gradient(135deg,#f0fff8,#d4f5e9);border:1.5px solid #00b89440;">
-                        <div class="ps-label">💵 Cash</div>
+                        <div class="ps-label"><i class="ph-money ph-duotone" style="font-size:15px;color:#27ae60"></i> Cash</div>
                         <div class="ps-amount" style="color:#27ae60;">₹${totalCashSpent.toFixed(2)}</div>
                     </div>
                     <div class="payment-summary-box bank-summary">
-                        <div class="ps-label">🏦 Bank</div>
+                        <div class="ps-label"><i class="ph-bank ph-duotone" style="font-size:15px;color:var(--primary)"></i> Bank</div>
                         <div class="ps-amount bank-amt">₹${totalBankSpent.toFixed(2)}</div>
                     </div>
                     <div class="payment-summary-box card-summary">
-                        <div class="ps-label">💳 Credit</div>
+                        <div class="ps-label"><i class="ph-credit-card ph-duotone" style="font-size:15px;color:var(--danger)"></i> Credit</div>
                         <div class="ps-amount card-amt">₹${totalCardSpent.toFixed(2)}</div>
                     </div>
                 </div>
             `;
 
             if (bankAccounts.length === 0 && creditCards.length === 0 && totalCashSpent === 0) {
-                list.innerHTML = html + '<div class="empty-state"><div class="empty-state-icon">💳</div><p>Add bank accounts or credit cards</p></div>';
+                list.innerHTML = html + '<div class="empty-state"><div class="empty-state-icon"><i class="ph-credit-card ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4"></i></div><p>Add bank accounts or credit cards</p></div>';
                 return;
             }
 
@@ -1575,7 +1762,7 @@
                     <div class="payment-method-item">
                         <div class="payment-method-header">
                             <div>
-                                <div class="payment-method-name">💵 Cash</div>
+                                <div class="payment-method-name"><i class="ph-money ph-duotone" style="font-size:15px;color:#27ae60"></i> Cash</div>
                                 <div class="payment-method-type">Cash payments</div>
                             </div>
                             <div class="payment-method-amount" style="color:#27ae60;">₹${totalCashSpent.toFixed(2)}</div>
@@ -1590,12 +1777,12 @@
                     <div class="payment-method-item">
                         <div class="payment-method-header">
                             <div>
-                                <div class="payment-method-name">🏦 ${bank.name}</div>
+                                <div class="payment-method-name"><i class="ph-bank ph-duotone" style="font-size:16px;color:var(--primary)"></i> ${bank.name}</div>
                                 <div class="payment-method-type">Bank Account</div>
                             </div>
                             <div style="display:flex;align-items:center;gap:10px;">
                                 <div class="payment-method-amount">₹${spent.toFixed(2)}</div>
-                                <button class="delete-pm-btn" onclick="deletePaymentMethod('bank',${idx})" title="Delete">🗑️</button>
+                                <button class="delete-pm-btn" onclick="deletePaymentMethod('bank',${idx})" title="Delete"><i class="ph-trash-simple ph-bold" style="font-size:15px;"></i></button>
                             </div>
                         </div>
                     </div>`;
@@ -1611,13 +1798,13 @@
                     <div class="payment-method-item">
                         <div class="payment-method-header">
                             <div>
-                                <div class="payment-method-name">💳 ${card.name}</div>
+                                <div class="payment-method-name"><i class="ph-credit-card ph-duotone" style="font-size:16px;color:var(--danger)"></i> ${card.name}</div>
                                 <div class="payment-method-type">Credit Card • Due: ${card.dueDate}${getDaySuffix(card.dueDate)}</div>
-                                ${isDueSoon ? `<div class="due-date-warning">⚠️ Due in ${daysUntilDue} day${daysUntilDue!==1?'s':''}</div>` : ''}
+                                ${isDueSoon ? `<div class="due-date-warning"><i class="ph-warning ph-bold" style="font-size:14px;color:var(--warn)"></i> Due in ${daysUntilDue} day${daysUntilDue!==1?'s':''}</div>` : ''}
                             </div>
                             <div style="display:flex;align-items:center;gap:10px;">
                                 <div class="payment-method-amount credit-card">₹${spent.toFixed(2)}</div>
-                                <button class="delete-pm-btn" onclick="deletePaymentMethod('card',${idx})" title="Delete">🗑️</button>
+                                <button class="delete-pm-btn" onclick="deletePaymentMethod('card',${idx})" title="Delete"><i class="ph-trash-simple ph-bold" style="font-size:15px;"></i></button>
                             </div>
                         </div>
                     </div>`;
@@ -1633,7 +1820,7 @@
             else creditCards.splice(idx, 1);
             saveData();
             renderAll();
-            showSnackbar(`🗑️ ${name} deleted`);
+            showSnackbar(`${name} deleted`);
         }
 
         function getDaySuffix(day) {
@@ -1669,7 +1856,7 @@
                     return `
                         <div class="alert">
                             <div>
-                                <span class="alert-icon">⚠️</span>
+                                <span class="alert-icon"><i class="ph-warning ph-bold" style="font-size:14px;color:var(--warn)"></i></span>
                                 <strong>${card.name}</strong> payment due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}!
                                 Amount: ₹${monthSpent.toFixed(2)}
                             </div>
@@ -1683,39 +1870,149 @@
 
         // Charts
         function renderBudgetChart() {
-            const filteredExpenses = getFilteredExpenses();
-            const periodSpent = filteredExpenses.reduce((sum, exp) => sum + getMyShare(exp), 0);
-            const percentage = budget > 0 ? (periodSpent / budget) * 100 : 0;
-            const height = Math.min(percentage, 100);
-            const html = `
-                <div class="chart-bar" style="height: ${height}%;">
-                    <div class="chart-bar-value">₹${periodSpent.toFixed(0)}</div>
-                    <div class="chart-bar-label">Spent</div>
-                </div>
-                <div class="chart-bar" style="height: 100%; background: linear-gradient(180deg, #dfe6e9, #b2bec3);">
-                    <div class="chart-bar-value">₹${budget.toFixed(0)}</div>
-                    <div class="chart-bar-label">Budget</div>
-                </div>
-            `;
-            ['budgetChart', 'budgetChart2'].forEach(id => {
+            const now         = new Date();
+            const monthNames  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const monthLabel  = monthNames[now.getMonth()] + ' ' + now.getFullYear();
+            ['budgetMonthLabel','budgetMonthLabel2'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.innerHTML = html;
+                if (el) el.textContent = monthLabel;
             });
+            const year = now.getFullYear(), month = now.getMonth();
+            const daysInMonth = new Date(year, month+1, 0).getDate();
+            const todayDay    = now.getDate();
+            // Build cumulative daily spending
+            const cum = Array(daysInMonth+1).fill(0);
+            expenses.filter(e => {
+                const d = new Date(e.date);
+                return d.getFullYear()===year && d.getMonth()===month;
+            }).forEach(e => {
+                const day = new Date(e.date).getDate();
+                if (day>=1 && day<=daysInMonth) cum[day] += getMyShare(e);
+            });
+            for (let i=1; i<=daysInMonth; i++) cum[i] += cum[i-1];
+            const monthSpent  = cum[todayDay];
+            const nobudget    = budget===0;
+            const pct         = budget>0 ? monthSpent/budget : 0;
+            const isOver      = budget>0 && monthSpent>budget;
+            const isWarn      = budget>0 && pct>=0.8 && !isOver;
+            const accent      = isOver ? '#ff5e7a' : isWarn ? '#f5a623' : '#00d4a0';
+            // Layout
+            const W=480, H=164, pl=52, pr=16, pt=18, pb=34;
+            const cW=W-pl-pr, cH=H-pt-pb;
+            const dailyAvg  = todayDay>0 ? monthSpent/todayDay : 0;
+            const projected = dailyAvg * daysInMonth;
+            const yMax = nobudget
+                ? Math.max(monthSpent*1.5, 100)
+                : Math.max(budget*1.18, projected*1.1, monthSpent*1.3, 1);
+            const xp = d   => pl + (d/daysInMonth)*cW;
+            const yp = val => pt + cH - (val/yMax)*cH;
+            // Area path
+            let area = xp(0)+','+yp(0), line = 'M'+xp(0)+','+yp(0);
+            for (let d=1; d<=todayDay; d++) {
+                area += ' '+xp(d)+','+yp(cum[d]);
+                line += ' L'+xp(d)+','+yp(cum[d]);
+            }
+            area += ' '+xp(todayDay)+','+yp(0)+' '+xp(0)+','+yp(0);
+            // Ideal pace (dashed diagonal)
+            const idealLine = nobudget ? '' :
+                '<line x1="'+xp(0)+'" y1="'+yp(0)+'" x2="'+xp(daysInMonth)+'" y2="'+yp(budget)+'"'
+                +' stroke="rgba(255,255,255,0.1)" stroke-width="1.5" stroke-dasharray="4 4"/>';
+            // Budget cap
+            const capLine = nobudget ? '' :
+                '<line x1="'+xp(0)+'" y1="'+yp(budget)+'" x2="'+xp(daysInMonth)+'" y2="'+yp(budget)+'"'
+                +' stroke="rgba(255,94,122,0.4)" stroke-width="1" stroke-dasharray="3 3"/>'
+                +'<text x="'+(W-pr)+'" y="'+(yp(budget)-5)+'" text-anchor="end"'
+                +' style="font-size:9px;fill:rgba(255,94,122,0.6);font-weight:700;font-family:Work Sans,sans-serif;">' 
+                +'Limit ' + String.fromCodePoint(0x20B9) + budget.toFixed(0)+'</text>';
+            // Projected dashed
+            const projLine = (!nobudget && dailyAvg>0 && todayDay<daysInMonth)
+                ? '<line x1="'+xp(todayDay)+'" y1="'+yp(monthSpent)+'"'
+                  +' x2="'+xp(daysInMonth)+'" y2="'+yp(Math.min(projected,yMax))+'"'
+                  +' stroke="'+accent+'" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>'
+                : '';
+            // Today dot
+            const dot = '<circle cx="'+xp(todayDay)+'" cy="'+yp(monthSpent)+'" r="5"'
+                +' fill="'+accent+'" stroke="var(--card-bg)" stroke-width="2.5"/>';
+            // Grid + y labels
+            let grid = '';
+            for (let i=0; i<=3; i++) {
+                const v = (yMax/3)*i, y = yp(v);
+                const lbl = v>=1000 ? String.fromCodePoint(0x20B9)+(v/1000).toFixed(v%1000===0?0:1)+'k'
+                                    : String.fromCodePoint(0x20B9)+Math.round(v);
+                grid += '<text x="'+(pl-6)+'" y="'+(y+4)+'" text-anchor="end"'
+                     +' style="font-size:9px;fill:var(--text-muted);font-family:Work Sans,sans-serif;">'+lbl+'</text>'
+                     +'<line x1="'+pl+'" y1="'+y+'" x2="'+(pl+cW)+'" y2="'+y+'"'
+                     +' stroke="var(--divider)" stroke-width="0.5" opacity="0.4"/>';
+            }
+            // X labels
+            const xset = new Set();
+            let xlabels = '';
+            [1, Math.round(daysInMonth/2), todayDay, daysInMonth].forEach(d => {
+                if (xset.has(d)||d<1||d>daysInMonth) return; xset.add(d);
+                const isT = d===todayDay;
+                xlabels += '<text x="'+xp(d)+'" y="'+(H-5)+'" text-anchor="middle"'
+                    +' style="font-size:9px;fill:'+(isT?accent:'var(--text-muted)')+';'
+                    +'font-weight:'+(isT?'700':'400')+';font-family:Work Sans,sans-serif;">'
+                    +(isT?'Today':'Day '+d)+'</text>';
+            });
+            // Gradient
+            const gid = 'bgg'+month+'_'+year;
+            const defs = '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">'
+                +'<stop offset="0%" stop-color="'+accent+'" stop-opacity="0.3"/>'
+                +'<stop offset="100%" stop-color="'+accent+'" stop-opacity="0.02"/>'
+                +'</linearGradient></defs>';
+            // SVG
+            const svg = '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block;" preserveAspectRatio="none">'
+                +defs+grid+idealLine+capLine
+                +'<polygon points="'+area+'" fill="url(#'+gid+')"/>'
+                +'<path d="'+line+'" fill="none" stroke="'+accent+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'
+                +projLine+xlabels+dot+'</svg>';
+            // Footer
+            const remaining = Math.max(0, budget-monthSpent);
+            const dLeft     = daysInMonth - todayDay;
+            const apd       = dLeft>0 && budget>0 ? remaining/dLeft : 0;
+            const picon = pct>0.9?'trend-up':pct>0.6?'equals':'trend-down';
+            const pcol  = pct>0.9?'var(--danger)':pct>0.6?'var(--warn)':'var(--primary)';
+            const ptxt  = pct>0.9?'Overspending':pct>0.6?'On pace':'Under budget';
+            const llbl  = isOver?'Over by':('Left'+(apd>0?' · ₹'+apd.toFixed(0)+'/day':''));
+            const lval  = isOver?(monthSpent-budget).toFixed(0):remaining.toFixed(0);
+            const lcol  = isOver?'var(--danger)':'var(--primary)';
+            const footer = nobudget
+                ? '<div style="text-align:center;padding:20px 0 8px;">'
+                  +'<i class="ph-target ph-duotone" style="font-size:36px;color:var(--primary);opacity:0.35;"></i>'
+                  +'<div style="margin-top:8px;font-weight:700;color:var(--text);font-size:0.9rem;">No budget set</div>'
+                  +'<div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;">Tap <b>Set</b> to track your spend</div>'
+                  +'</div>'
+                : '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 2px 0;gap:8px;flex-wrap:wrap;">'
+                  +'<div style="display:flex;flex-direction:column;gap:1px;">'
+                  +'<span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Spent</span>'
+                  +'<span style="font-family:Outfit,sans-serif;font-size:1.1rem;font-weight:800;color:'+accent+';">₹'+monthSpent.toFixed(0)+'</span>'
+                  +'</div>'
+                  +'<div style="display:flex;align-items:center;gap:6px;background:var(--bg2);padding:6px 14px;border-radius:50px;border:1.5px solid var(--divider);">'
+                  +'<i class="ph-'+picon+' ph-bold" style="font-size:13px;color:'+pcol+';"></i>'
+                  +'<span style="font-size:0.78rem;font-weight:700;color:'+pcol+';">'+ptxt+'</span>'
+                  +'<span style="font-size:0.75rem;color:var(--text-muted);">&nbsp;·&nbsp;'+Math.round(pct*100)+'% used</span>'
+                  +'</div>'
+                  +'<div style="display:flex;flex-direction:column;gap:1px;text-align:right;">'
+                  +'<span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">'+llbl+'</span>'
+                  +'<span style="font-family:Outfit,sans-serif;font-size:1.1rem;font-weight:800;color:'+lcol+';">₹'+lval+'</span>'
+                  +'</div></div>';
+            const html = '<div style="padding:12px 4px 4px;">'+svg+footer+'</div>';
+            ['budgetChart','budgetChart2'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=html;});
         }
-
         function renderCategoryChart() {
             const container = document.getElementById('categoryChartContainer');
             if (!container) return;
 
             const CAT_META = {
-                rent:          { color: '#74b9ff', icon: '🏠' },
-                food:          { color: '#ff9f7f', icon: '🍽️' },
-                transport:     { color: '#a29bfe', icon: '🚌' },
-                utilities:     { color: '#ffd32a', icon: '⚡' },
-                study:         { color: '#00cec9', icon: '📚' },
-                entertainment: { color: '#ff7675', icon: '🎮' },
-                personal:      { color: '#fd79a8', icon: '🧴' },
-                other:         { color: '#b2bec3', icon: '📦' }
+                rent:          { color: '#74b9ff', icon: 'home' },
+                food:          { color: '#ff9f7f', icon: 'fork-knife' },
+                transport:     { color: '#a29bfe', icon: 'bus' },
+                utilities:     { color: '#ffd32a', icon: 'lightning' },
+                study:         { color: '#00cec9', icon: 'books' },
+                entertainment: { color: '#ff7675', icon: 'game-controller' },
+                personal:      { color: '#fd79a8', icon: 'sparkle' },
+                other:         { color: '#b2bec3', icon: 'package' }
             };
 
             const filteredExpenses = getDonutFilteredExpenses();
@@ -1728,7 +2025,7 @@
             const grandTotal = cats.reduce((s, c) => s + c.total, 0);
 
             if (grandTotal === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div><p>No spending data yet</p></div>';
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-chart-pie-slice ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4"></i></div><p>No spending data yet</p></div>';
                 return;
             }
 
@@ -1764,7 +2061,7 @@
             const legend = cats.map((c, i) => `
                 <div class="legend-item" onclick="highlightSegment(${i})">
                     <span class="legend-dot" style="background:${c.color}"></span>
-                    <span class="legend-icon">${c.icon}</span>
+                    <span class="legend-icon"><i class="ph-${c.icon} ph-duotone" style="font-size:14px;color:${c.color};"></i></span>
                     <span class="legend-name">${c.cat}</span>
                     <span class="legend-amount">₹${c.total.toFixed(0)}</span>
                     <span class="legend-pct">${((c.total / grandTotal) * 100).toFixed(0)}%</span>
@@ -1870,7 +2167,7 @@
             document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
             localStorage.setItem('theme', isDark ? 'light' : 'dark');
             const btn = document.getElementById('themeToggle');
-            btn.innerHTML = isDark ? '🌙 <span>Dark</span>' : '☀️ <span>Light</span>';
+            btn.innerHTML = isDark ? '<i class="ph-moon ph-bold" style="font-size:16px;"></i> <span>Dark</span>' : '<i class="ph-sun ph-bold" style="font-size:16px;"></i> <span>Light</span>';
         }
 
         (function applyTheme() {
@@ -1878,54 +2175,149 @@
             if (saved === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
                 const btn = document.getElementById('themeToggle');
-                if (btn) btn.innerHTML = '☀️ <span>Light</span>';
+                if (btn) btn.innerHTML = '<i class="ph-sun ph-bold" style="font-size:16px;"></i> <span>Light</span>';
             }
         })();
 
-        function updateSplitPreview() {
-            const isShared = document.getElementById('isShared').checked;
-            const amount = parseFloat(document.getElementById('expenseAmount').value) || 0;
-            const preview = document.getElementById('splitPreview');
+        // ── Smart Split System ──
+        function setSplitMode(mode) {
+            document.getElementById('splitMode').value = mode;
+            ['none','equal','custom'].forEach(m => {
+                const id = 'splitMode' + m.charAt(0).toUpperCase() + m.slice(1);
+                document.getElementById(id).classList.toggle('active', m===mode);
+            });
+            document.getElementById('splitEqualPanel').style.display  = mode==='equal'  ? 'block' : 'none';
+            document.getElementById('splitCustomPanel').style.display = mode==='custom' ? 'block' : 'none';
+            if (mode === 'equal')  buildEqualPicker();
+            if (mode === 'custom') buildCustomFields();
+        }
 
-            if (!isShared || amount === 0) {
-                preview.style.display = 'none';
+        function buildEqualPicker() {
+            const container = document.getElementById('splitEqualPeople');
+            if (roommates.length === 0) {
+                container.innerHTML = '<span style="font-size:0.82rem;color:var(--text-muted);">Add roommates first</span>';
                 return;
             }
+            container.innerHTML = roommates.map(rm =>
+                '<button type="button" class="person-chip selected" data-name="' + rm.name + '" onclick="togglePersonChip(this)">' + rm.name + '</button>'
+            ).join('');
+            updateEqualList();
+        }
 
-            const totalPeople = roommates.length + 1;
-            const myShare = amount / totalPeople;
+        function togglePersonChip(btn) {
+            btn.classList.toggle('selected');
+            updateEqualList();
+        }
 
+        function updateEqualList() {
+            const selected = [...document.querySelectorAll('.person-chip.selected')].map(b => b.dataset.name);
+            document.getElementById('splitEqualList').value = JSON.stringify(selected);
+            const amount = parseFloat(document.getElementById('expenseAmount').value) || 0;
+            const preview = document.getElementById('splitEqualPreview');
+            if (amount > 0 && selected.length > 0) {
+                const total = selected.length + 1;
+                const share = amount / total;
+                preview.style.display = 'block';
+                preview.innerHTML =
+                    '<div class="split-preview-row me">You — ₹' + share.toFixed(2) + '</div>' +
+                    selected.map(n => '<div class="split-preview-row">' + n + ' — ₹' + share.toFixed(2) + '</div>').join('') +
+                    '<div style="border-top:1px solid var(--divider);margin-top:6px;padding-top:6px;font-size:0.75rem;color:var(--text-muted);">' +
+                    total + ' people · ₹' + amount.toFixed(2) + ' total</div>';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        function buildCustomFields() {
+            const container = document.getElementById('splitCustomFields');
+            if (roommates.length === 0) {
+                container.innerHTML = '<span style="font-size:0.82rem;color:var(--text-muted);">Add roommates first</span>';
+                return;
+            }
+            const amount = parseFloat(document.getElementById('expenseAmount').value) || 0;
+            const def = amount > 0 ? (amount / (roommates.length + 1)).toFixed(2) : '';
+            let html = '<div class="split-custom-row"><label>You</label>' +
+                '<input type="number" id="customShare_me" step="0.01" min="0" placeholder="Your amount" value="' + def + '" oninput="updateCustomPreview()"></div>';
+            roommates.forEach(rm => {
+                const safeId = 'customShare_' + rm.name.replace(/[^a-zA-Z0-9]/g, '_');
+                html += '<div class="split-custom-row"><label>' + rm.name + '</label>' +
+                    '<input type="number" id="' + safeId + '" step="0.01" min="0" placeholder="0.00" value="' + def + '" oninput="updateCustomPreview()"></div>';
+            });
+            container.innerHTML = html;
+            updateCustomPreview();
+        }
+
+        function updateCustomPreview() {
+            const amount  = parseFloat(document.getElementById('expenseAmount').value) || 0;
+            const myShare = parseFloat(document.getElementById('customShare_me') && document.getElementById('customShare_me').value) || 0;
+            const others  = roommates.map(rm => {
+                const safeId = 'customShare_' + rm.name.replace(/[^a-zA-Z0-9]/g, '_');
+                const el = document.getElementById(safeId);
+                return { name: rm.name, val: el ? parseFloat(el.value) || 0 : 0 };
+            });
+            const total = myShare + others.reduce((s,o) => s + o.val, 0);
+            const diff  = amount - total;
+            const isOk  = Math.abs(diff) < 0.01;
+            const preview = document.getElementById('splitCustomPreview');
+            if (!preview) return;
             preview.style.display = 'block';
-            preview.innerHTML = `
-                <div class="split-calculation">
-                    Total Amount: ₹${amount.toFixed(2)} ÷ ${totalPeople} people
-                </div>
-                <div class="split-my-share">
-                    Your Share: ₹${myShare.toFixed(2)}
-                </div>
-                <div style="font-size: 0.85rem; margin-top: 5px; color: var(--text-muted);">
-                    Each person pays ₹${myShare.toFixed(2)}
-                </div>
-            `;
+            let html = '<div class="split-preview-row me">You — ₹' + myShare.toFixed(2) + '</div>';
+            others.filter(o=>o.val>0).forEach(o => { html += '<div class="split-preview-row">' + o.name + ' — ₹' + o.val.toFixed(2) + '</div>'; });
+            html += '<div style="border-top:1px solid var(--divider);margin-top:6px;padding-top:6px;" class="split-preview-row ' + (isOk?'me':'warn') + '">' +
+                (isOk ? '<i class="ph-check-circle ph-bold" style="font-size:13px;"></i> Totals match ₹' + amount.toFixed(2) : '<i class="ph-warning ph-bold" style="font-size:14px;color:var(--warn)"></i> ' + (diff>0?'Under':'Over') + ' by ₹' + Math.abs(diff).toFixed(2)) + '</div>';
+            preview.innerHTML = html;
+        }
+
+        function updateSplitPreview() {
+            const mode = document.getElementById('splitMode') && document.getElementById('splitMode').value;
+            if (mode === 'equal')  updateEqualList();
+            if (mode === 'custom') buildCustomFields();
         }
 
         // Add Functions
         function addExpense(e) {
             e.preventDefault();
             
-            const freq = document.getElementById('recurringFrequency').value;
+            const freq      = document.getElementById('recurringFrequency').value;
+            const splitMode = document.getElementById('splitMode').value;
+            const amount    = parseFloat(document.getElementById('expenseAmount').value);
+
+            // Build split data
+            let isShared    = false;
+            let splitWith   = [];
+            let customShares = null;
+
+            if (splitMode === 'equal') {
+                splitWith = JSON.parse(document.getElementById('splitEqualList').value || '[]');
+                isShared  = splitWith.length > 0;
+            } else if (splitMode === 'custom') {
+                const myShare = parseFloat(document.getElementById('customShare_me')?.value) || 0;
+                customShares  = { me: myShare };
+                roommates.forEach(rm => {
+                    const safeId = 'customShare_' + rm.name.replace(/[^a-zA-Z0-9]/g, '_');
+                    const el = document.getElementById(safeId);
+                    const val = el ? parseFloat(el.value) || 0 : 0;
+                    if (val > 0) { customShares[rm.name] = val; splitWith.push(rm.name); }
+                });
+                isShared = splitWith.length > 0;
+            }
+
             const expense = {
-                title: document.getElementById('expenseTitle').value,
-                amount: parseFloat(document.getElementById('expenseAmount').value),
-                category: document.getElementById('expenseCategory').value,
-                date: document.getElementById('expenseDate').value,
-                isShared: document.getElementById('isShared').checked,
-                isRecurring: freq !== 'none',
+                id:               Date.now().toString(),
+                title:            document.getElementById('expenseTitle').value,
+                amount:           amount,
+                category:         document.getElementById('expenseCategory').value,
+                date:             document.getElementById('expenseDate').value,
+                isShared,
+                splitMode,
+                splitWith,
+                customShares,
+                isRecurring:      freq !== 'none',
                 recurringFrequency: freq,
-                recurStatus: freq !== 'none' ? 'active' : null,
-                recurStartDate: freq !== 'none' ? document.getElementById('recurStartDate').value : null,
-                excludeDays: freq !== 'none' ? JSON.parse(document.getElementById('excludeDays').value || '[]') : [],
-                paymentMethod: document.getElementById('expensePaymentMethod').value
+                recurStatus:      freq !== 'none' ? 'active' : null,
+                recurStartDate:   freq !== 'none' ? document.getElementById('recurStartDate').value : null,
+                excludeDays:      freq !== 'none' ? JSON.parse(document.getElementById('excludeDays').value || '[]') : [],
+                paymentMethod:    document.getElementById('expensePaymentMethod').value
             };
 
             expenses.push(expense);
@@ -1935,14 +2327,14 @@
             closeModal('addExpenseModal');
             e.target.reset();
             document.getElementById('expenseDate').valueAsDate = new Date();
-            // Reset recurring selector
             document.getElementById('recurringFrequency').value = 'none';
             document.querySelectorAll('.recur-btn').forEach(b => b.classList.remove('active'));
             document.querySelector('.recur-btn[data-value="none"]').classList.add('active');
             document.getElementById('recurringSettings').style.display = 'none';
             document.getElementById('excludeDays').value = '[]';
             document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('excluded'));
-            showSnackbar('Expense added');
+            setSplitMode('none');
+            showSnackbar('<i class="ph-check-circle ph-bold" style="font-size:13px;"></i> Expense added');
         }
 
         function recurringControl(index, action) {
@@ -2068,7 +2460,7 @@
             renderLoans();
             closeModal('addLoanModal');
             e.target.reset();
-            showSnackbar(`💸 Lent ₹${loan.amount.toFixed(2)} to ${loan.friend}`);
+            showSnackbar(`Lent ₹${loan.amount.toFixed(2)} to ${loan.friend}`);
         }
 
         function openRepayModal(loanId) {
@@ -2097,8 +2489,8 @@
             renderLoans();
             closeModal('repayModal');
             showSnackbar(loan.status === 'settled'
-                ? `✅ ${loan.friend} fully paid back!`
-                : `💰 ₹${amount.toFixed(2)} received from ${loan.friend}`);
+                ? `<i class="ph-check-circle ph-bold" style="font-size:14px;"></i> ${loan.friend} fully paid back!`
+                : `₹${amount.toFixed(2)} received from ${loan.friend}`);
         }
 
         function markLoanFullyPaid(loanId) {
@@ -2111,7 +2503,7 @@
             loan.status = 'settled';
             saveData();
             renderLoans();
-            showSnackbar(`✅ ${loan.friend} marked as fully paid!`);
+            showSnackbar(`<i class="ph-check-circle ph-bold" style="font-size:14px;"></i> ${loan.friend} marked as fully paid!`);
         }
 
         function deleteLoan(loanId) {
@@ -2140,18 +2532,18 @@
 
             summary.innerHTML = `
                 <div class="loan-summary-box loan-active-box">
-                    <div class="loan-sum-label">🔴 Outstanding</div>
+                    <div class="loan-sum-label"><i class="ph-x-circle ph-bold" style="font-size:12px;color:var(--danger)"></i> Outstanding</div>
                     <div class="loan-sum-val loan-active-val">₹${totalLent.toFixed(2)}</div>
                     <div class="loan-sum-label">${activeLoans.length} active</div>
                 </div>
                 <div class="loan-summary-box loan-settled-box">
-                    <div class="loan-sum-label">✅ Recovered</div>
+                    <div class="loan-sum-label"><i class="ph-check-circle ph-bold" style="font-size:12px;color:var(--primary)"></i> Recovered</div>
                     <div class="loan-sum-val loan-settled-val">₹${totalRecovered.toFixed(2)}</div>
                     <div class="loan-sum-label">${settledLoans.length} settled</div>
                 </div>`;
 
             if (loans.length === 0) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🤝</div><p>No loans yet. Lend money and track it here.</p></div>';
+                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-handshake ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4"></i></div><p>No loans yet. Lend money and track it here.</p></div>';
                 return;
             }
 
@@ -2166,11 +2558,11 @@
                 const paid       = loan.repayments.reduce((s, r) => s + r.amount, 0);
                 const dateStr    = new Date(loan.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
                 const badgeClass = { pending: 'badge-pending', partial: 'badge-partial', settled: 'badge-settled' }[loan.status];
-                const badgeText  = { pending: '⏳ Pending', partial: '💫 Partial', settled: '✅ Settled' }[loan.status];
+                const badgeText  = { pending: '<i class="ph-hourglass-medium ph-bold" style="font-size:12px;"></i> Pending', partial: '<i class="ph-circle-half ph-bold" style="font-size:12px;"></i> Partial', settled: '<i class="ph-check-circle ph-bold" style="font-size:12px;"></i> Settled' }[loan.status];
 
                 const repayHtml = loan.repayments.length ? `
                     <div class="loan-repayments">
-                        <strong style="font-size:0.78rem;color:var(--text-muted);">Repayments</strong>
+                        <strong style="font-size:0.78rem;color:var(--text-muted);"><i class="ph-arrow-u-left-down ph-duotone" style="font-size:18px;color:var(--primary)"></i> Repayments</strong>
                         ${loan.repayments.map(r => `
                             <div class="repayment-row">
                                 <span>${r.date}${r.note ? ' · ' + r.note : ''}</span>
@@ -2180,19 +2572,19 @@
 
                 const actionBtns = loan.status !== 'settled' ? `
                     <div class="loan-actions">
-                        <button class="loan-btn loan-btn-pay"  onclick="openRepayModal('${loan.id}')">💰 Partial Pay</button>
-                        <button class="loan-btn loan-btn-full" onclick="markLoanFullyPaid('${loan.id}')">✅ Paid Back</button>
-                        <button class="loan-btn loan-btn-del"  onclick="deleteLoan('${loan.id}')">🗑️</button>
+                        <button class="loan-btn loan-btn-pay"  onclick="openRepayModal('${loan.id}')"><i class="ph-coins ph-bold" style="font-size:14px;"></i> Partial Pay</button>
+                        <button class="loan-btn loan-btn-full" onclick="markLoanFullyPaid('${loan.id}')"><i class="ph-check-circle ph-bold" style="font-size:14px;"></i> Paid Back</button>
+                        <button class="loan-btn loan-btn-del"  onclick="deleteLoan('${loan.id}')"><i class="ph-trash-simple ph-bold" style="font-size:15px;"></i></button>
                     </div>` : `
                     <div class="loan-actions">
-                        <button class="loan-btn loan-btn-del" onclick="deleteLoan('${loan.id}')">🗑️ Remove</button>
+                        <button class="loan-btn loan-btn-del" onclick="deleteLoan('${loan.id}')"><i class="ph-trash ph-bold" style="font-size:14px;"></i> Remove</button>
                     </div>`;
 
                 return `
                     <div class="loan-item ${loan.status === 'settled' ? 'settled' : ''}">
                         <div class="loan-top">
                             <div>
-                                <div class="loan-friend-name">👤 ${loan.friend}</div>
+                                <div class="loan-friend-name"><i class="ph-user-circle ph-duotone" style="font-size:16px;color:var(--accent)"></i> ${loan.friend}</div>
                                 <div class="loan-meta">${dateStr}${loan.note ? ' · ' + loan.note : ''}</div>
                                 <span class="loan-status-badge ${badgeClass}">${badgeText}</span>
                             </div>
@@ -2205,6 +2597,26 @@
                         ${actionBtns}
                     </div>`;
             }).join('');
+        }
+
+        // ── Clear Data ──────────────────────────────────────────────
+        function clearAllData() {
+            if (!confirm('<i class="ph-warning ph-bold" style="font-size:14px;color:var(--warn)"></i> This will permanently delete ALL data — expenses, roommates, loans, payment methods, budget, and settlements. This cannot be undone.\n\nAre you absolutely sure?')) return;
+            const secondConfirm = prompt('Type "DELETE" to confirm:');
+            if (secondConfirm !== 'DELETE') { showSnackbar('Cancelled — data safe'); return; }
+            expenses = []; roommates = []; budget = 0; bankAccounts = [];
+            creditCards = []; settlements = {}; loans = [];
+            localStorage.clear();
+            renderAll();
+            showSnackbar('<i class="ph-trash ph-bold" style="font-size:13px;"></i> All data cleared');
+        }
+
+        function clearExpensesOnly() {
+            if (!confirm('Delete all expenses only? Roommates, loans, and payment methods will be kept.')) return;
+            expenses = [];
+            saveData();
+            renderAll();
+            showSnackbar('Expenses cleared');
         }
 
         // ── Snackbar ─────────────────────────────────────────────────
