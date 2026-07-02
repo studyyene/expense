@@ -716,22 +716,22 @@
             <!-- Dashboard Stats -->
             <div class="dashboard">
                 <div class="stat-card">
-                    <span class="stat-icon"><i class="ph-arrow-up-right ph-duotone" style="font-size:26px;color:var(--primary)"></i></span>
+                    <span class="stat-icon"><i class="ph-arrow-up-right ph-duotone" style="font-size:26px;color:var(--primary);"></i></span>
                     <div class="stat-label">Total Spent</div>
                     <div class="stat-value">₹<span id="totalSpent">0</span></div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-icon"><i class="ph-target ph-duotone" style="font-size:26px;color:var(--accent)"></i></span>
+                    <span class="stat-icon"><i class="ph-target ph-duotone" style="font-size:26px;color:var(--accent);"></i></span>
                     <div class="stat-label">Budget Left</div>
                     <div class="stat-value"><span id="budgetLeftCurrency" style="font-size:1.1rem;">₹</span><span id="budgetLeft">—</span></div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-icon"><i class="ph-calendar-check ph-duotone" style="font-size:26px;color:#74b9ff"></i></span>
+                    <span class="stat-icon"><i class="ph-calendar-check ph-duotone" style="font-size:26px;color:#74b9ff;"></i></span>
                     <div class="stat-label" id="periodLabel">This Month</div>
                     <div class="stat-value">₹<span id="periodSpent">0</span></div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-icon"><i class="ph-handshake ph-duotone" style="font-size:26px;color:var(--warn)"></i></span>
+                    <span class="stat-icon"><i class="ph-handshake ph-duotone" style="font-size:26px;color:var(--warn);"></i></span>
                     <div class="stat-label">Owed to Me</div>
                     <div class="stat-value">₹<span id="oweMe">0</span></div>
                 </div>
@@ -769,13 +769,11 @@
                     <h2 class="card-title">Expenses</h2>
                     <button class="btn btn-primary btn-small" onclick="openAddExpense()"><i class="ph-plus ph-bold" style="font-size:14px;"></i> Add</button>
                 </div>
-
                 <div class="tabs">
                     <button class="tab active" onclick="switchTab('all')">All</button>
                     <button class="tab" onclick="switchTab('personal')">Personal</button>
                     <button class="tab" onclick="switchTab('shared')">Shared</button>
                 </div>
-
                 <div class="tab-content active" id="tab-all">
                     <div class="expense-list" id="expensesList"></div>
                 </div>
@@ -1157,6 +1155,7 @@
         </div>
     </div>
 
+
     <!-- Hidden Import Input -->
     <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="handleImportFile(event)">
 
@@ -1281,16 +1280,16 @@
 
         // ── Data ──────────────────────────────────────────────────
         // Data
-        let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-        let roommates = JSON.parse(localStorage.getItem('roommates')) || [];
-        let budget = parseFloat(localStorage.getItem('budget')) || 0;
-        let bankAccounts = JSON.parse(localStorage.getItem('bankAccounts')) || [];
+        let expenses    = JSON.parse(localStorage.getItem('expenses'))    || [];
+        let roommates   = JSON.parse(localStorage.getItem('roommates'))   || [];
+        let budget      = parseFloat(localStorage.getItem('budget'))      || 0;
+        let bankAccounts= JSON.parse(localStorage.getItem('bankAccounts'))|| [];
         let creditCards = JSON.parse(localStorage.getItem('creditCards')) || [];
         let settlements = JSON.parse(localStorage.getItem('settlements')) || {};
-        let currentTimeFilter = 'month';
+        let loans       = JSON.parse(localStorage.getItem('loans'))       || [];
+        let currentTimeFilter   = 'month';
         let currentPaymentFilter = 'month';
-        let currentDonutFilter = 'month';
-        let loans = JSON.parse(localStorage.getItem('loans')) || [];
+        let currentDonutFilter   = 'month';
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -1304,18 +1303,28 @@
             document.getElementById('expenseDate').valueAsDate = new Date();
             if (document.getElementById('loanDate')) document.getElementById('loanDate').valueAsDate = new Date();
             ensureDesktopLayout();
+
+            // Auto-create any recurring expenses due today
+            const created = checkAndAutoCreateRecurring();
             renderAll();
+            if (created > 0) {
+                setTimeout(() => showSnackbar(
+                    '<span style="display:inline-flex;align-items:center;gap:7px;">'
+                    + '<i class="ph-arrows-clockwise ph-bold" style="font-size:15px;color:var(--accent);"></i>'
+                    + '<span>' + created + ' recurring expense' + (created > 1 ? 's' : '') + ' auto-added for today</span></span>'
+                ), 600);
+            }
             checkCreditCardDueDates();
         });
 
         function saveData() {
-            localStorage.setItem('expenses', JSON.stringify(expenses));
-            localStorage.setItem('roommates', JSON.stringify(roommates));
-            localStorage.setItem('budget', budget.toString());
+            localStorage.setItem('expenses',     JSON.stringify(expenses));
+            localStorage.setItem('roommates',    JSON.stringify(roommates));
+            localStorage.setItem('budget',       budget.toString());
             localStorage.setItem('bankAccounts', JSON.stringify(bankAccounts));
-            localStorage.setItem('creditCards', JSON.stringify(creditCards));
-            localStorage.setItem('settlements', JSON.stringify(settlements));
-            localStorage.setItem('loans', JSON.stringify(loans));
+            localStorage.setItem('creditCards',  JSON.stringify(creditCards));
+            localStorage.setItem('settlements',  JSON.stringify(settlements));
+            localStorage.setItem('loans',        JSON.stringify(loans));
         }
 
         function renderAll() {
@@ -1465,26 +1474,24 @@
         // Dashboard
         function renderDashboard() {
             const filteredExpenses = getFilteredExpenses();
-            const totalSpent  = expenses.reduce((sum, exp) => sum + getMyShare(exp), 0);
-            const periodSpent = filteredExpenses.reduce((sum, exp) => sum + getMyShare(exp), 0);
-
-            // Budget left always = this calendar month vs set budget
             const now = new Date();
-            const monthExpenses = expenses.filter(e => {
-                const d = new Date(e.date);
-                return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-            });
-            const monthSpent = monthExpenses.reduce((sum, exp) => sum + getMyShare(exp), 0);
+
+            const totalSpent  = expenses.reduce((s, e) => s + getMyShare(e), 0);
+            const periodSpent = filteredExpenses.reduce((s, e) => s + getMyShare(e), 0);
+
+            // Budget left = this calendar month vs budget
+            const mStart     = new Date(now.getFullYear(), now.getMonth(), 1);
+            const monthSpent = expenses.filter(e => new Date(e.date) >= mStart).reduce((s,e) => s+getMyShare(e), 0);
             const budgetLeft = budget > 0 ? budget - monthSpent : null;
 
-            // oweMe: use calculateRoommateBalance for accuracy
-            let oweMe = roommates.reduce((sum, rm) => {
+            // Owed to me
+            let oweMe = roommates.reduce((s, rm) => {
                 const bal = calculateRoommateBalance(rm.name);
-                return sum + (bal > 0 ? bal : 0);
+                return s + (bal > 0 ? bal : 0);
             }, 0);
 
             // Period label
-            const labelMap = { today:"Today's Spend", week:"This Week", month:"This Month", all:"All-time", recurring:"Recurring" };
+            const labelMap   = { today:"Today's Spend", week:"This Week", month:"This Month", all:"All-time", recurring:"Recurring" };
             const periodLabelEl = document.getElementById('periodLabel');
             if (periodLabelEl) periodLabelEl.textContent = labelMap[currentTimeFilter] || 'This Period';
 
@@ -1492,59 +1499,48 @@
             document.getElementById('periodSpent').textContent = periodSpent.toFixed(2);
             document.getElementById('oweMe').textContent       = oweMe.toFixed(2);
 
-            // Budget left — colour coded, hide ₹ prefix when no budget
-            const budgetLeftEl  = document.getElementById('budgetLeft');
-            const budgetCurrEl  = document.getElementById('budgetLeftCurrency');
+            // Budget left card
+            const budgetLeftEl = document.getElementById('budgetLeft');
+            const budgetCurrEl = document.getElementById('budgetLeftCurrency');
             if (budgetLeft === null) {
                 if (budgetCurrEl) budgetCurrEl.style.display = 'none';
-                budgetLeftEl.textContent = 'Not set';
-                budgetLeftEl.style.color = 'var(--text-muted)';
-                budgetLeftEl.style.fontSize = '1rem';
+                if (budgetLeftEl) { budgetLeftEl.textContent = 'Not set'; budgetLeftEl.style.color = 'var(--text-muted)'; budgetLeftEl.style.fontSize = '1rem'; }
             } else {
                 if (budgetCurrEl) budgetCurrEl.style.display = '';
                 const pct = monthSpent / budget;
-                budgetLeftEl.textContent = budgetLeft.toFixed(2);
-                budgetLeftEl.style.fontSize = '';
-                budgetLeftEl.style.color =
-                    pct >= 1   ? 'var(--danger)' :
-                    pct >= 0.8 ? 'var(--warn)'   :
-                                 'var(--primary)';
+                if (budgetLeftEl) {
+                    budgetLeftEl.textContent  = budgetLeft.toFixed(2);
+                    budgetLeftEl.style.fontSize = '';
+                    budgetLeftEl.style.color  = pct >= 1 ? 'var(--danger)' : pct >= 0.8 ? 'var(--warn)' : 'var(--primary)';
+                }
             }
         }
 
         // Expenses
         function renderExpenses() {
             const filteredExpenses = getFilteredExpenses();
-            const allList = document.getElementById('expensesList');
+            const allList      = document.getElementById('expensesList');
             const personalList = document.getElementById('personalExpensesList');
-            const sharedList = document.getElementById('sharedExpensesList');
+            const sharedList   = document.getElementById('sharedExpensesList');
 
-            allList.innerHTML = '';
-            personalList.innerHTML = '';
-            sharedList.innerHTML = '';
+            allList.innerHTML = ''; personalList.innerHTML = ''; sharedList.innerHTML = '';
 
             if (filteredExpenses.length === 0) {
-                allList.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-receipt ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4"></i></div><p>No expenses</p></div>';
+                allList.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-receipt ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4;"></i></div><p>No expenses yet</p></div>';
+                personalList.innerHTML = allList.innerHTML;
+                sharedList.innerHTML   = allList.innerHTML;
                 return;
             }
 
-            filteredExpenses.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach((exp, index) => {
-                const expenseHtml = createExpenseHtml(exp, expenses.indexOf(exp));
-                allList.innerHTML += expenseHtml;
-                
-                if (exp.isShared) {
-                    sharedList.innerHTML += expenseHtml;
-                } else {
-                    personalList.innerHTML += expenseHtml;
-                }
+            filteredExpenses.sort((a,b) => new Date(b.date)-new Date(a.date)).forEach(exp => {
+                const html = createExpenseHtml(exp, expenses.indexOf(exp));
+                allList.innerHTML += html;
+                if (exp.isShared) sharedList.innerHTML += html;
+                else personalList.innerHTML += html;
             });
 
-            if (personalList.innerHTML === '') {
-                personalList.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-receipt ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4"></i></div><p>No personal expenses</p></div>';
-            }
-            if (sharedList.innerHTML === '') {
-                sharedList.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-receipt ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4"></i></div><p>No shared expenses</p></div>';
-            }
+            if (!personalList.innerHTML) personalList.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-receipt ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4;"></i></div><p>No personal expenses</p></div>';
+            if (!sharedList.innerHTML)   sharedList.innerHTML   = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-receipt ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4;"></i></div><p>No shared expenses</p></div>';
         }
 
         function createExpenseHtml(exp, index) {
@@ -1676,13 +1672,13 @@
 
         function settleWithRoommate(name) {
             const balance = calculateRoommateBalance(name);
-            if (balance <= 0) { showSnackbar('Nothing to settle'); return; }
+            if (balance <= 0) { showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-info ph-bold" style="font-size:15px;color:var(--text-muted);"></i><span>Nothing to settle</span></span>'); return; }
             if (confirm(`Mark ₹${balance.toFixed(2)} as settled with ${name}?`)) {
                 if (!settlements[name]) settlements[name] = 0;
                 settlements[name] += balance;
                 saveData();
                 renderAll();
-                showSnackbar(`<i class="ph-check-circle ph-bold" style="font-size:12px;"></i> Settled ₹${balance.toFixed(2)} with ${name}`);
+                showSnackbar(`<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-check-circle ph-bold" style="font-size:15px;color:var(--primary);"></i><span>Settled ₹${balance.toFixed(2)} with ${name}</span></span>`);
             }
         }
 
@@ -1692,12 +1688,12 @@
             const input = prompt(`Enter amount received from ${name} (max ₹${balance.toFixed(2)}):`);
             const amt = parseFloat(input);
             if (isNaN(amt) || amt <= 0) return;
-            if (amt > balance) { showSnackbar('Amount exceeds balance'); return; }
+            if (amt > balance) { showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-warning ph-bold" style="font-size:15px;color:var(--warn);"></i><span>Amount exceeds balance</span></span>'); return; }
             if (!settlements[name]) settlements[name] = 0;
             settlements[name] += amt;
             saveData();
             renderAll();
-            showSnackbar(`<i class="ph-coins ph-bold" style="font-size:14px;"></i> ₹${amt.toFixed(2)} recorded from ${name}`);
+            showSnackbar(`<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-coins ph-bold" style="font-size:15px;color:var(--primary);"></i><span>₹${amt.toFixed(2)} received from ${name}</span></span>`);
         }
 
         function deleteRoommate(index) {
@@ -1706,7 +1702,7 @@
             roommates.splice(index, 1);
             saveData();
             renderAll();
-            showSnackbar(`${rm.name} removed`);
+            showSnackbar(`<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-trash ph-bold" style="font-size:15px;color:var(--danger);"></i><span>${rm.name} removed</span></span>`);
         }
 
         // Payment Methods
@@ -1820,7 +1816,7 @@
             else creditCards.splice(idx, 1);
             saveData();
             renderAll();
-            showSnackbar(`${name} deleted`);
+            showSnackbar(`<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-trash ph-bold" style="font-size:15px;color:var(--danger);"></i><span>${name} deleted</span></span>`);
         }
 
         function getDaySuffix(day) {
@@ -1978,11 +1974,11 @@
             const lval  = isOver?(monthSpent-budget).toFixed(0):remaining.toFixed(0);
             const lcol  = isOver?'var(--danger)':'var(--primary)';
             const footer = nobudget
-                ? '<div style="text-align:center;padding:20px 0 8px;">'
-                  +'<i class="ph-target ph-duotone" style="font-size:36px;color:var(--primary);opacity:0.35;"></i>'
-                  +'<div style="margin-top:8px;font-weight:700;color:var(--text);font-size:0.9rem;">No budget set</div>'
-                  +'<div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;">Tap <b>Set</b> to track your spend</div>'
-                  +'</div>'
+                ? '<div style="display:flex;align-items:center;gap:10px;padding:10px 2px 0;">'
+                  + '<i class="ph-target ph-duotone" style="font-size:22px;color:var(--primary);opacity:0.5;flex-shrink:0;"></i>'
+                  + '<div><div style="font-weight:700;color:var(--text);font-size:0.85rem;">No budget set</div>'
+                  + '<div style="font-size:0.75rem;color:var(--text-muted);">Tap <b>Set</b> to unlock spending insights</div></div>'
+                  + '</div>'
                 : '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 2px 0;gap:8px;flex-wrap:wrap;">'
                   +'<div style="display:flex;flex-direction:column;gap:1px;">'
                   +'<span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Spent</span>'
@@ -2099,40 +2095,170 @@
             const input = document.getElementById('quickAddInput').value.trim();
             if (!input) return;
 
-            const parts = input.split(' ');
-            if (parts.length >= 2) {
-                const amount = parseFloat(parts[0]);
-                const category = parts.slice(1).join(' ').toLowerCase();
-                
-                const categoryMap = {
-                    'food': 'food', 'lunch': 'food', 'dinner': 'food',
-                    'transport': 'transport', 'bus': 'transport', 'auto': 'transport',
-                    'rent': 'rent',
-                    'utilities': 'utilities',
-                    'study': 'study',
-                    'entertainment': 'entertainment',
-                    'personal': 'personal'
-                };
+            // Support both "120 food" and "food 120"
+            const tokens = input.split(/\s+/);
+            let amount = NaN, titleParts = [];
 
-                const matchedCategory = categoryMap[category] || 'other';
+            tokens.forEach(t => {
+                const n = parseFloat(t);
+                if (!isNaN(n) && isNaN(amount)) amount = n;
+                else titleParts.push(t);
+            });
 
-                if (!isNaN(amount) && amount > 0 && bankAccounts.length > 0) {
-                    const expense = {
-                        title: category.charAt(0).toUpperCase() + category.slice(1),
-                        amount: amount,
-                        category: matchedCategory,
-                        date: new Date().toISOString().split('T')[0],
-                        isShared: false,
-                        paymentMethod: bankAccounts[0].id
-                    };
+            if (isNaN(amount) || amount <= 0) {
+                showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-warning ph-bold" style="font-size:15px;color:var(--warn);"></i><span>Format: "120 food" or "coffee 50"</span></span>');
+                return;
+            }
 
-                    expenses.push(expense);
-                    saveData();
-                    renderAll();
-                    showSnackbar('Expense added');
-                    document.getElementById('quickAddInput').value = '';
+            const raw = titleParts.join(' ').toLowerCase().trim() || 'expense';
+
+            // ── Comprehensive keyword map ──
+            const rules = [
+                // ── 🍽️ Food & Drinks ──
+                { keys: [
+                    // meals
+                    'food','meal','meals','lunch','dinner','breakfast','brunch','supper',
+                    'snack','snacks','eat','eating','ate',
+                    // Indian breads & staples
+                    'chapathi','chapati','chapathi','roti','naan','paratha','parotta','phulka',
+                    'puttu','putt','idli','dosa','uttapam','appam','pathiri','kerala parotta',
+                    'rice','biryani','fried rice','pulao','khichdi','upma','pongal','poha',
+                    // curries & sides
+                    'curry','dal','sambhar','sambar','rasam','chutney','pickle','pappad','papad',
+                    'sabzi','vegetable','chicken','mutton','fish','egg','omelette','boiled egg',
+                    // snacks & street food
+                    'samosa','vada','vadai','bajji','bonda','pakoda','pani puri','chaat',
+                    'sandwich','burger','pizza','pasta','maggi','noodles','manchurian',
+                    'roll','wrap','frankie','shawarma','kebab','tikka',
+                    // sweets & desserts
+                    'sweet','sweets','dessert','ice cream','kulfi','halwa','payasam','kheer',
+                    'laddu','barfi','gulab jamun','jalebi','cake','pastry','brownie','biscuit',
+                    // drinks
+                    'coffee','tea','chai','lassi','buttermilk','juice','shake','milkshake',
+                    'smoothie','cold coffee','lemonade','tender coconut','coconut water',
+                    'water bottle','mineral water','soft drink','soda','pepsi','coke',
+                    // apps & restaurants
+                    'swiggy','zomato','blinkit','dunzo','restaurant','hotel','cafe',
+                    'dhaba','canteen','mess','tiffin','dabba','food court','food stall',
+                    'mcdonalds','kfc','dominos','subway','burger king',
+                    // misc food
+                    'grocery','groceries','vegetable','veggies','fruit','fruits',
+                    'milk','curd','yogurt','paneer','cheese','butter','ghee','oil',
+                  ],
+                  cat: 'food' },
+
+                // ── 🚌 Transport ──
+                { keys: [
+                    'transport','travel','bus','auto','cab','taxi',
+                    'uber','ola','rapido','namma yatri','yatri',
+                    'metro','local train','train','railway','irctc',
+                    'flight','air ticket','airport','aeroplane',
+                    'bike','cycle','scooter','petrol','diesel','fuel','cng',
+                    'toll','parking','rickshaw','ferry','boat','ship','cruise',
+                    'ticket','pass','monthly pass','travel card',
+                  ],
+                  cat: 'transport' },
+
+                // ── 🏠 Rent ──
+                { keys: [
+                    'rent','house rent','room rent','accommodation',
+                    'hostel','pg','flat','deposit','advance','lease',
+                    'dormitory','dorm','paying guest',
+                  ],
+                  cat: 'rent' },
+
+                // ── ⚡ Utilities ──
+                { keys: [
+                    'electricity','current bill','eb bill','water bill','wifi','internet',
+                    'broadband','jio','airtel','bsnl','vi','vodafone','recharge',
+                    'mobile recharge','prepaid','postpaid','dth','tata sky',
+                    'utilities','maintenance','society fee','gas','lpg','cylinder',
+                    'piped gas','water can','ro water','subscription',
+                  ],
+                  cat: 'utilities' },
+
+                // ── 📚 Study ──
+                { keys: [
+                    'study','book','books','textbook','stationery','pen','pencil','marker',
+                    'notebook','notes','register','file','folder','highlighter',
+                    'course','online course','udemy','coursera','unacademy','byju',
+                    'coaching','tuition','class','fee','fees','exam','exam fee',
+                    'college','school','university','institute','lab fee',
+                    'printing','xerox','photocopy','binding','assignment','project',
+                    'calculator','geometry box','scale','eraser','sharpener',
+                  ],
+                  cat: 'study' },
+
+                // ── 🎮 Entertainment ──
+                { keys: [
+                    'entertainment','movie','movies','film','cinema','pvr','inox','carnival',
+                    'netflix','amazon prime','hotstar','disney','youtube premium',
+                    'spotify','apple music','gaana','jiosaavn',
+                    'game','games','gaming','steam','ps5','playstation','xbox',
+                    'outing','hangout','party','picnic','trek','trip','tour',
+                    'concert','show','event','comedy show','standup',
+                    'pub','bar','club','lounge','bowling','billiards',
+                    'cricket','football','sport','sports','badminton','swimming',
+                    'escape room','laser tag','go karting','amusement',
+                  ],
+                  cat: 'entertainment' },
+
+                // ── 🧴 Personal ──
+                { keys: [
+                    'personal','gym','fitness','workout','protein',
+                    'haircut','salon','barber','spa','massage','parlour',
+                    'medicine','medical','doctor','hospital','clinic','pharmacy',
+                    'health','tablet','syrup','cream','ointment',
+                    'clothes','clothing','shirt','jeans','trousers','kurta',
+                    'shoes','slippers','sandals','bag','backpack','watch',
+                    'shopping','amazon','flipkart','myntra','ajio','meesho',
+                    'grooming','skincare','face wash','moisturiser','sunscreen',
+                    'hygiene','soap','shampoo','conditioner','toothpaste','deodorant',
+                    'toiletries','laundry','dry cleaning','ironing','tailoring',
+                    'spectacles','glasses','contact lens','dental',
+                  ],
+                  cat: 'personal' },
+            ];
+
+            // ── Smart matching: check if raw input contains any keyword ──
+            let matchedCat = 'other';
+            let matchedKey = '';
+            outer: for (const rule of rules) {
+                for (const key of rule.keys) {
+                    if (raw.includes(key)) {
+                        matchedCat = rule.cat;
+                        matchedKey = key;
+                        break outer;
+                    }
                 }
             }
+
+            // Title = raw input capitalised (or fallback to category)
+            const title = (titleParts.join(' ') || matchedCat).replace(/\b\w/g, l => l.toUpperCase());
+
+            const expense = {
+                id:           Date.now().toString(),
+                title:        title,
+                amount:       amount,
+                category:     matchedCat,
+                date:         new Date().toISOString().split('T')[0],
+                isShared:     false,
+                splitMode:    'none',
+                splitWith:    [],
+                customShares: null,
+                isRecurring:  false,
+                paymentMethod: bankAccounts.length > 0 ? bankAccounts[0].id : 'cash'
+            };
+
+            expenses.push(expense);
+            saveData();
+            renderAll();
+            showSnackbar(
+                '<span style="display:inline-flex;align-items:center;gap:7px;">'
+                + '<i class="ph-check-circle ph-bold" style="font-size:15px;color:var(--primary);"></i>'
+                + '<span>₹' + amount + ' · ' + title + ' → <b>' + matchedCat + '</b></span></span>'
+            );
+            document.getElementById('quickAddInput').value = '';
         }
 
         // Modals
@@ -2334,7 +2460,7 @@
             document.getElementById('excludeDays').value = '[]';
             document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('excluded'));
             setSplitMode('none');
-            showSnackbar('<i class="ph-check-circle ph-bold" style="font-size:13px;"></i> Expense added');
+            showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-check-circle ph-bold" style="font-size:15px;color:var(--primary);"></i><span>Expense added</span></span>');
         }
 
         function recurringControl(index, action) {
@@ -2350,7 +2476,7 @@
             }
             saveData();
             renderAll();
-            showSnackbar(action === 'pause' ? '⏸ Recurring paused' : action === 'resume' ? '▶ Recurring resumed' : '⏹ Recurring stopped');
+            showSnackbar(action === 'pause' ? '<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-pause ph-bold" style="font-size:15px;color:var(--warn);"></i><span>Recurring paused</span></span>' : action === 'resume' ? '<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-play ph-bold" style="font-size:15px;color:var(--primary);"></i><span>Recurring resumed</span></span>' : '<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-stop ph-bold" style="font-size:15px;color:var(--danger);"></i><span>Recurring stopped</span></span>');
         }
 
         function deleteExpense(index) {
@@ -2358,7 +2484,7 @@
                 expenses.splice(index, 1);
                 saveData();
                 renderAll();
-                showSnackbar('Expense deleted');
+                showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-trash ph-bold" style="font-size:15px;color:var(--danger);"></i><span>Expense deleted</span></span>');
             }
         }
 
@@ -2368,7 +2494,7 @@
             saveData();
             renderAll();
             closeModal('setBudgetModal');
-            showSnackbar('Budget updated');
+            showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-check-circle ph-bold" style="font-size:15px;color:var(--primary);"></i><span>Budget updated</span></span>');
         }
 
         function addRoommate(e) {
@@ -2386,7 +2512,7 @@
             
             closeModal('addRoommateModal');
             e.target.reset();
-            showSnackbar('Roommate added');
+            showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-check-circle ph-bold" style="font-size:15px;color:var(--primary);"></i><span>Roommate added</span></span>');
         }
 
         function addBankAccount(e) {
@@ -2403,7 +2529,7 @@
             renderAll();
             closeModal('addBankModal');
             e.target.reset();
-            showSnackbar('Bank account added');
+            showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-check-circle ph-bold" style="font-size:15px;color:var(--primary);"></i><span>Bank account added</span></span>');
         }
 
         function addCreditCard(e) {
@@ -2423,16 +2549,16 @@
             checkCreditCardDueDates();
             closeModal('addCreditCardModal');
             e.target.reset();
-            showSnackbar('Credit card added');
+            showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-check-circle ph-bold" style="font-size:15px;color:var(--primary);"></i><span>Credit card added</span></span>');
         }
 
         // Tabs
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            
             event.target.classList.add('active');
-            document.getElementById(`tab-${tab}`).classList.add('active');
+            const el = document.getElementById('tab-' + tab);
+            if (el) el.classList.add('active');
         }
 
         // ── Friend Loans ────────────────────────────────────────────
@@ -2460,7 +2586,7 @@
             renderLoans();
             closeModal('addLoanModal');
             e.target.reset();
-            showSnackbar(`Lent ₹${loan.amount.toFixed(2)} to ${loan.friend}`);
+            showSnackbar(`<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-arrows-left-right ph-bold" style="font-size:15px;color:var(--primary);"></i><span>Lent ₹${loan.amount.toFixed(2)} to ${loan.friend}</span></span>`);
         }
 
         function openRepayModal(loanId) {
@@ -2489,8 +2615,8 @@
             renderLoans();
             closeModal('repayModal');
             showSnackbar(loan.status === 'settled'
-                ? `<i class="ph-check-circle ph-bold" style="font-size:14px;"></i> ${loan.friend} fully paid back!`
-                : `₹${amount.toFixed(2)} received from ${loan.friend}`);
+                ? '<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-check-circle ph-bold" style="font-size:15px;color:var(--primary);"></i><span>' + loan.friend + ' fully paid!</span></span>'
+                : '<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-coins ph-bold" style="font-size:15px;color:var(--primary);"></i><span>₹' + amount.toFixed(2) + ' received from ' + loan.friend + '</span></span>');
         }
 
         function markLoanFullyPaid(loanId) {
@@ -2503,7 +2629,7 @@
             loan.status = 'settled';
             saveData();
             renderLoans();
-            showSnackbar(`<i class="ph-check-circle ph-bold" style="font-size:14px;"></i> ${loan.friend} marked as fully paid!`);
+            showSnackbar(`<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-check-circle ph-bold" style="font-size:15px;color:var(--primary);"></i><span>${loan.friend} fully paid!</span></span>`);
         }
 
         function deleteLoan(loanId) {
@@ -2512,7 +2638,7 @@
             loans = loans.filter(l => l.id !== loanId);
             saveData();
             renderLoans();
-            showSnackbar('Loan deleted');
+            showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-trash ph-bold" style="font-size:15px;color:var(--danger);"></i><span>Loan deleted</span></span>');
         }
 
         function loanRemaining(loan) {
@@ -2599,16 +2725,78 @@
             }).join('');
         }
 
+        // ── Recurring Auto-Create ────────────────────────────────────
+        // Runs on every app load. For each active recurring expense,
+        // checks if a new entry is due today and creates it if not already logged.
+        function checkAndAutoCreateRecurring() {
+            const today     = new Date();
+            const todayStr  = today.toISOString().split('T')[0];
+            const todayDay  = today.getDay();   // 0=Sun … 6=Sat
+            let created     = 0;
+
+            // Collect templates: only original recurring expenses (not auto-copies)
+            const templates = expenses.filter(e => e.isRecurring && e.recurStatus === 'active' && !e.isRecurCopy);
+
+            templates.forEach(tmpl => {
+                const freq       = tmpl.recurringFrequency;  // daily | weekly | monthly
+                const startDate  = new Date(tmpl.recurStartDate || tmpl.date);
+                const excluded   = tmpl.excludeDays || [];
+
+                // Skip if today is an excluded day of week
+                if (excluded.includes(todayDay)) return;
+
+                // Skip if start date is in the future
+                if (startDate > today) return;
+
+                // Check if we already created a copy for today
+                const alreadyToday = expenses.some(
+                    e => e.isRecurCopy && e.recurTemplateId === tmpl.id && e.date === todayStr
+                );
+                if (alreadyToday) return;
+
+                let isDue = false;
+                if (freq === 'daily') {
+                    isDue = true;
+                } else if (freq === 'weekly') {
+                    // Same day of week as the start date
+                    isDue = today.getDay() === startDate.getDay();
+                } else if (freq === 'monthly') {
+                    // Same day of month as the start date
+                    isDue = today.getDate() === startDate.getDate();
+                }
+
+                if (isDue) {
+                    const copy = {
+                        ...tmpl,
+                        id:             Date.now().toString() + '_rc_' + created,
+                        date:           todayStr,
+                        isRecurCopy:    true,
+                        recurTemplateId:tmpl.id,
+                        recurStatus:    null,
+                        isRecurring:    false,   // copies are plain expenses
+                    };
+                    expenses.push(copy);
+                    created++;
+                }
+            });
+
+            if (created > 0) {
+                saveData();
+                return created;
+            }
+            return 0;
+        }
+
         // ── Clear Data ──────────────────────────────────────────────
         function clearAllData() {
             if (!confirm('<i class="ph-warning ph-bold" style="font-size:14px;color:var(--warn)"></i> This will permanently delete ALL data — expenses, roommates, loans, payment methods, budget, and settlements. This cannot be undone.\n\nAre you absolutely sure?')) return;
             const secondConfirm = prompt('Type "DELETE" to confirm:');
-            if (secondConfirm !== 'DELETE') { showSnackbar('Cancelled — data safe'); return; }
+            if (secondConfirm !== 'DELETE') { showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-shield-check ph-bold" style="font-size:15px;color:var(--text-muted);"></i><span>Cancelled — data safe</span></span>'); return; }
             expenses = []; roommates = []; budget = 0; bankAccounts = [];
             creditCards = []; settlements = {}; loans = [];
             localStorage.clear();
             renderAll();
-            showSnackbar('<i class="ph-trash ph-bold" style="font-size:13px;"></i> All data cleared');
+            showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-trash ph-bold" style="font-size:15px;color:var(--danger);"></i><span>All data cleared</span></span>');
         }
 
         function clearExpensesOnly() {
@@ -2616,26 +2804,23 @@
             expenses = [];
             saveData();
             renderAll();
-            showSnackbar('Expenses cleared');
+            showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-broom ph-bold" style="font-size:15px;color:var(--warn);"></i><span>Expenses cleared</span></span>');
         }
 
         // ── Snackbar ─────────────────────────────────────────────────
         function showSnackbar(message) {
             const snackbar = document.getElementById('snackbar');
-            snackbar.textContent = message;
+            snackbar.innerHTML = message;
             snackbar.classList.add('show');
-            setTimeout(() => snackbar.classList.remove('show'), 3000);
+            clearTimeout(snackbar._timer);
+            snackbar._timer = setTimeout(() => snackbar.classList.remove('show'), 3000);
         }
 
         // Export/Import
         function exportData() {
             const data = {
-                expenses,
-                roommates,
-                budget,
-                bankAccounts,
-                creditCards,
-                settlements,
+                expenses, roommates, budget,
+                bankAccounts, creditCards, settlements,
                 loans,
                 exportDate: new Date().toISOString()
             };
@@ -2646,7 +2831,7 @@
             a.href = url;
             a.download = `finance-backup-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
-            showSnackbar('Data exported');
+            showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-export ph-bold" style="font-size:15px;color:var(--primary);"></i><span>Data exported</span></span>');
         }
 
         function importData() {
@@ -2663,17 +2848,17 @@
                     const data = JSON.parse(e.target.result);
                     
                     if (confirm('This will replace all data. Continue?')) {
-                        expenses = data.expenses || [];
-                        roommates = data.roommates || [];
-                        budget = data.budget || 0;
-                        bankAccounts = data.bankAccounts || [];
+                        expenses    = data.expenses    || [];
+                        roommates   = data.roommates   || [];
+                        budget      = data.budget      || 0;
+                        bankAccounts= data.bankAccounts|| [];
                         creditCards = data.creditCards || [];
                         settlements = data.settlements || {};
-                        loans = data.loans || [];
+                        loans       = data.loans       || [];
                         
                         saveData();
                         renderAll();
-                        showSnackbar('Data imported');
+                        showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-download-simple ph-bold" style="font-size:15px;color:var(--primary);"></i><span>Data imported</span></span>');
                     }
                 } catch (err) {
                     alert('Invalid file');
