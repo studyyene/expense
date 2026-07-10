@@ -18,7 +18,10 @@
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2300b894'/><text y='.9em' font-size='72' x='50%' text-anchor='middle'>💰</text></svg>">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
     <style>
         /* Phosphor icon sizing helpers */
         .ph { display:inline-flex; align-items:center; justify-content:center; }
@@ -542,6 +545,82 @@
         .danger-zone-title { font-weight:700; color:var(--danger); margin-bottom:4px; font-size:0.9rem; }
         .danger-zone-sub { font-size:0.78rem; color:var(--text-muted); margin-bottom:12px; }
 
+        /* ── Cash badge ── */
+        .payment-badge.cash-badge { background:rgba(39,174,96,0.12); color:#27ae60; border:1px solid rgba(39,174,96,0.25); }
+
+        /* ── Recurring copy item ── */
+        .recur-copy-item { border-left: 3px solid var(--accent) !important; }
+
+        /* ── Calendar ── */
+        .cal-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr);
+            gap: 3px; margin-bottom: 12px;
+        }
+        .cal-day-header {
+            text-align:center; font-size:0.7rem; font-weight:700;
+            color:var(--text-muted); padding:4px 0; text-transform:uppercase; letter-spacing:0.5px;
+        }
+        .cal-day {
+            aspect-ratio:1; display:flex; flex-direction:column;
+            align-items:center; justify-content:center; border-radius:10px;
+            cursor:pointer; transition:var(--transition); position:relative;
+            min-height:38px; padding:4px 2px;
+            border:1.5px solid transparent;
+            font-size:0.82rem; font-weight:600; color:var(--text);
+        }
+        .cal-day:hover { background:var(--bg2); border-color:var(--primary); }
+        .cal-day.today { background:rgba(0,212,160,0.1); border-color:var(--primary); color:var(--primary); font-weight:800; }
+        .cal-day.selected { background:var(--primary); color:white !important; border-color:var(--primary); }
+        .cal-day.other-month { color:var(--text-muted); opacity:0.4; }
+        .cal-day.has-expense::after {
+            content:''; position:absolute; bottom:3px; left:50%; transform:translateX(-50%);
+            width:5px; height:5px; border-radius:50%; background:var(--danger);
+        }
+        .cal-day.has-income::after { background:var(--primary); }
+        .cal-day.has-both::after { background:var(--warn); }
+        .cal-day-amount {
+            font-size:0.6rem; color:var(--danger); font-weight:700; line-height:1;
+            margin-top:1px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+        }
+        .cal-day.today .cal-day-amount, .cal-day.selected .cal-day-amount { color:inherit; opacity:0.85; }
+
+        .cal-detail-header {
+            display:flex; justify-content:space-between; align-items:center;
+            padding-bottom:10px; border-bottom:1.5px solid var(--divider); margin-bottom:12px;
+        }
+        .cal-detail-title { font-family:'Outfit',sans-serif; font-size:1rem; font-weight:700; }
+        .cal-detail-total { font-family:'Outfit',sans-serif; font-size:1.1rem; font-weight:800; color:var(--danger); }
+
+        /* ── Recurring management ── */
+        .recur-manage-item {
+            background:var(--bg2); border-radius:var(--radius-md); padding:14px;
+            margin-bottom:10px; border:1.5px solid var(--divider); transition:var(--transition);
+        }
+        .recur-manage-item:hover { border-color:var(--accent); }
+        .recur-manage-header { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+        .recur-manage-title { font-weight:700; font-size:0.95rem; color:var(--text); }
+        .recur-manage-meta { font-size:0.75rem; color:var(--text-muted); margin-top:3px; }
+        .recur-manage-amount { font-family:'Outfit',sans-serif; font-size:1.1rem; font-weight:800; }
+        .recur-manage-copies {
+            margin-top:10px; border-top:1px solid var(--divider); padding-top:10px;
+        }
+        .recur-manage-copies-title {
+            font-size:0.72rem; color:var(--text-muted); font-weight:700;
+            text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;
+        }
+        .recur-copy-row {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:6px 8px; border-radius:8px; transition:var(--transition);
+        }
+        .recur-copy-row:hover { background:var(--card-bg); }
+        .recur-copy-date { font-size:0.82rem; color:var(--text); font-weight:500; }
+        .recur-copy-del {
+            background:none; border:1px solid var(--danger); color:var(--danger);
+            border-radius:6px; padding:3px 8px; font-size:0.72rem; cursor:pointer;
+            transition:var(--transition); font-weight:600;
+        }
+        .recur-copy-del:hover { background:var(--danger); color:white; }
+
         /* ── Snackbar ── */
         .snackbar {
             position: fixed; bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px);
@@ -700,9 +779,12 @@
         <div class="mobile-section active" id="section-home">
             <!-- Quick Add -->
             <div class="quick-add-bar">
-                <input type="text" class="quick-add-input" id="quickAddInput" placeholder='Quick add: "120 food"' onkeypress="handleQuickAdd(event)">
+                <input type="text" class="quick-add-input" id="quickAddInput"
+                    placeholder='Quick add: "120 food", "50 bus cash", "200 rent sbi"'
+                    onkeypress="handleQuickAdd(event)" oninput="updateQuickAddHint()">
                 <button class="btn btn-primary btn-small" onclick="processQuickAdd()">Add</button>
             </div>
+            <div id="quickAddHint" style="display:none;font-size:0.75rem;color:var(--text-muted);padding:4px 4px 8px;"></div>
 
             <!-- Time Filter -->
             <div class="time-filter">
@@ -833,9 +915,73 @@
             </div>
         </div>
 
+        <!-- SECTION: Payments (moved inside More on mobile, kept for desktop) -->
+        <div class="mobile-section" id="section-payments" style="display:none;">
+        </div>
+
+        <!-- SECTION: Calendar -->
+        <div class="mobile-section" id="section-calendar">
+            <div class="card" style="margin-bottom:16px;">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="ph-calendar-dots ph-duotone" style="font-size:20px;color:var(--primary);"></i> Calendar View</h2>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <button class="btn btn-secondary btn-small" id="calPrevBtn" onclick="navigateCalendar(-1)"><i class="ph-caret-left ph-bold" style="font-size:14px;"></i></button>
+                        <span id="calMonthLabel" style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.95rem;min-width:90px;text-align:center;"></span>
+                        <button class="btn btn-secondary btn-small" id="calNextBtn" onclick="navigateCalendar(1)"><i class="ph-caret-right ph-bold" style="font-size:14px;"></i></button>
+                    </div>
+                </div>
+                <div id="calendarGrid"></div>
+                <div id="calendarDayDetail" style="margin-top:16px;"></div>
+            </div>
+
+            <!-- Recurring Management -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="ph-arrows-clockwise ph-duotone" style="font-size:20px;color:var(--accent);"></i> Recurring Schedules</h2>
+                </div>
+                <div id="recurringManageList"></div>
+            </div>
+        </div>
+
         <!-- SECTION: More -->
         <div class="mobile-section" id="section-more">
-            <!-- Desktop: main-content grid lives here too -->
+            <!-- Payment Methods (mobile: inside More) -->
+            <div class="card" style="margin-bottom:16px;">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="ph-credit-card ph-duotone" style="font-size:18px;color:var(--primary);"></i> Payment Methods</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary btn-small" onclick="openAddBank()"><i class="ph-bank ph-bold" style="font-size:14px;"></i> Bank</button>
+                        <button class="btn btn-secondary btn-small" onclick="openAddCreditCard()"><i class="ph-credit-card ph-bold" style="font-size:14px;"></i> Card</button>
+                    </div>
+                </div>
+                <div class="pm-filter-row">
+                    <button class="pm-filter-btn" onclick="setPaymentFilter('week',this)">This Week</button>
+                    <button class="pm-filter-btn active" onclick="setPaymentFilter('month',this)">This Month</button>
+                    <button class="pm-filter-btn" onclick="setPaymentFilter('all',this)">All</button>
+                    <button class="pm-filter-btn" onclick="setPaymentFilter('custom',this)"><i class="ph-calendar-blank ph-bold" style="font-size:13px;"></i> Custom</button>
+                </div>
+                <div class="pm-custom-date" id="pmCustomDate2" style="display:none;">
+                    <div class="pm-date-row">
+                        <div class="form-group" style="margin:0;flex:1;"><label>From</label><input type="date" id="pmDateFrom2" onchange="renderPaymentMethods()"></div>
+                        <div class="form-group" style="margin:0;flex:1;"><label>To</label><input type="date" id="pmDateTo2" onchange="renderPaymentMethods()"></div>
+                    </div>
+                </div>
+                <div id="paymentMethodsList"></div>
+            </div>
+
+            <!-- Category Chart -->
+            <div class="card" style="margin-bottom:16px;">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="ph-chart-pie-slice ph-duotone" style="font-size:18px;color:var(--accent);"></i> Spending by Category</h2>
+                </div>
+                <div class="donut-filter-row">
+                    <button class="donut-filter-btn" onclick="setDonutFilter('today',this)">Today</button>
+                    <button class="donut-filter-btn" onclick="setDonutFilter('week',this)">Weekly</button>
+                    <button class="donut-filter-btn active" onclick="setDonutFilter('month',this)">Monthly</button>
+                    <button class="donut-filter-btn" onclick="setDonutFilter('all',this)">All Time</button>
+                </div>
+                <div id="categoryChartContainer"></div>
+            </div>
             <div class="main-content desktop-main">
                 <div class="card" style="margin-bottom:15px;">
                     <div class="card-header">
@@ -917,12 +1063,12 @@
             Expenses
         </button>
         <button class="nav-btn nav-add" onclick="openAddExpense()">
-            <span class="nav-icon"><i class="ph-plus-circle ph-fill" style="font-size:28px;color:white"></i></span>
+            <span class="nav-icon"><i class="ph-plus-circle ph-fill" style="font-size:28px;color:white;"></i></span>
             Add
         </button>
-        <button class="nav-btn" id="nav-payments" onclick="switchSection('payments')">
-            <span class="nav-icon"><i class="ph-credit-card ph-duotone" style="font-size:24px;"></i></span>
-            Payments
+        <button class="nav-btn" id="nav-calendar" onclick="switchSection('calendar')">
+            <span class="nav-icon"><i class="ph-calendar-dots ph-duotone" style="font-size:24px;"></i></span>
+            Calendar
         </button>
         <button class="nav-btn" id="nav-more" onclick="switchSection('more')">
             <span class="nav-icon"><i class="ph-dots-three-outline ph-duotone" style="font-size:24px;"></i></span>
@@ -1256,15 +1402,16 @@
         function switchSection(name) {
             const isMobile = window.innerWidth <= 768;
             if (!isMobile) return;
-
             document.querySelectorAll('.mobile-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-btn[id^="nav-"]').forEach(b => b.classList.remove('active'));
-
             const section = document.getElementById('section-' + name);
-            const navBtn = document.getElementById('nav-' + name);
+            const navBtn  = document.getElementById('nav-' + name);
             if (section) section.classList.add('active');
-            if (navBtn) navBtn.classList.add('active');
-
+            if (navBtn)  navBtn.classList.add('active');
+            if (name === 'calendar') {
+                renderCalendar();
+                renderRecurringManagement();
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1336,6 +1483,8 @@
             renderCategoryChart();
             renderPaymentMethods();
             renderLoans();
+            renderRecurringManagement();
+            renderCalendar();
         }
 
         // Time Filter
@@ -1357,20 +1506,28 @@
         }
 
         function getFilteredExpenses() {
-            const now = new Date();
+            const now   = new Date();
             const today = now.toISOString().split('T')[0];
-            if (currentTimeFilter === 'all')       return expenses;
-            if (currentTimeFilter === 'today')     return expenses.filter(e => e.date === today);
-            if (currentTimeFilter === 'recurring') return expenses.filter(exp => exp.isRecurring);
-            if (currentTimeFilter === 'week') {
-                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                return expenses.filter(exp => new Date(exp.date) >= weekAgo);
+
+            // Recurring filter → show only templates (for management view)
+            if (currentTimeFilter === 'recurring') {
+                return expenses.filter(e => e.isRecurring && !e.isRecurCopy);
+            }
+
+            // All other filters: exclude raw templates (show copies + regular expenses)
+            const base = expenses.filter(e => !(e.isRecurring && !e.isRecurCopy));
+
+            if (currentTimeFilter === 'all')   return base;
+            if (currentTimeFilter === 'today') return base.filter(e => e.date === today);
+            if (currentTimeFilter === 'week')  {
+                const w = new Date(now.getTime() - 7*24*60*60*1000);
+                return base.filter(e => new Date(e.date) >= w);
             }
             if (currentTimeFilter === 'month') {
-                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-                return expenses.filter(exp => new Date(exp.date) >= monthStart);
+                const m = new Date(now.getFullYear(), now.getMonth(), 1);
+                return base.filter(e => new Date(e.date) >= m);
             }
-            return expenses;
+            return base;
         }
 
         // Recurring selector
@@ -1544,28 +1701,43 @@
         }
 
         function createExpenseHtml(exp, index) {
-            const date = new Date(exp.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+            const date    = new Date(exp.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
             const typeClass = exp.isShared ? 'shared' : 'personal';
             const typeLabel = exp.isShared ? 'SHARED' : 'PERSONAL';
-            const myShare = getMyShare(exp);
-            
-            const paymentMethod = [...bankAccounts, ...creditCards].find(pm => pm.id === exp.paymentMethod);
-            const paymentName = paymentMethod ? paymentMethod.name : 'Unknown';
-            const paymentClass = paymentMethod && paymentMethod.type === 'credit-card' ? 'credit-card' : '';
+            const myShare   = getMyShare(exp);
+
+            // ── Payment method — handle cash explicitly ──
+            let paymentName, paymentClass = '';
+            if (!exp.paymentMethod || exp.paymentMethod === 'cash') {
+                paymentName  = 'Cash';
+                paymentClass = 'cash-badge';
+            } else {
+                const pm = [...bankAccounts, ...creditCards].find(p => p.id === exp.paymentMethod);
+                paymentName  = pm ? pm.name : 'Cash';
+                paymentClass = pm && pm.type === 'credit-card' ? 'credit-card' : '';
+            }
 
             let shareInfo = '';
             if (exp.isShared) {
-                const myShare2 = myShare;
                 const who = exp.splitWith && exp.splitWith.length > 0 ? exp.splitWith.join(', ') : 'all';
-                const modeLabel = exp.splitMode === 'custom' ? 'custom' : 'equal';
-                shareInfo = `<small style="color:var(--text-muted);display:block;margin-top:2px;">Split ${modeLabel} with ${who} · Your share: ₹${myShare2.toFixed(2)}</small>`;
+                shareInfo = `<small style="color:var(--text-muted);display:block;margin-top:2px;">Split ${exp.splitMode==='custom'?'custom':'equal'} with ${who} · My share ₹${myShare.toFixed(2)}</small>`;
             }
 
-            const isPaused = exp.recurStatus === 'paused';
-            const freqLabel = exp.recurringFrequency ? exp.recurringFrequency.charAt(0).toUpperCase() + exp.recurringFrequency.slice(1) : '';
-            const recurBadgeClass = isPaused ? 'recur-none' : `recur-${exp.recurringFrequency || 'monthly'}`;
-            const recurBadgeText = isPaused ? `<i class="ph-pause ph-bold" style="font-size:13px;"></i> Paused (${freqLabel})` : `<i class="ph-arrows-clockwise ph-bold" style="font-size:12px;color:inherit"></i> ${freqLabel}`;
+            // ── Recurring badges ──
+            const isPaused      = exp.recurStatus === 'paused';
+            const freqLabel     = exp.recurringFrequency ? exp.recurringFrequency.charAt(0).toUpperCase() + exp.recurringFrequency.slice(1) : '';
+            const recurBadgeClass = isPaused ? 'recur-none' : `recur-${exp.recurringFrequency||'monthly'}`;
+            const recurBadgeText  = isPaused
+                ? `<i class="ph-pause ph-bold" style="font-size:12px;"></i> Paused`
+                : `<i class="ph-arrows-clockwise ph-bold" style="font-size:12px;"></i> ${freqLabel}`;
 
+            // Auto-copy badge (shows when this is a recurring auto-deduction)
+            const recurCopyBadge = exp.isRecurCopy
+                ? `<span class="recurring-badge recur-${exp.recurringFrequency||'monthly'}" style="opacity:0.75;">
+                       <i class="ph-arrows-clockwise ph-bold" style="font-size:11px;"></i> Auto
+                   </span>` : '';
+
+            // Controls only on template (isRecurring:true), not on copies
             const recurControls = exp.isRecurring ? `
                 <div class="recur-controls">
                     ${isPaused
@@ -1573,28 +1745,30 @@
                         : `<button class="recur-ctrl-btn pause"  onclick="recurringControl(${index},'pause')"><i class="ph-pause ph-bold" style="font-size:13px;"></i> Pause</button>`}
                     <button class="recur-ctrl-btn stop" onclick="recurringControl(${index},'stop')"><i class="ph-stop ph-bold" style="font-size:13px;"></i> Stop</button>
                 </div>` : '';
-            
+
             return `
-                <div class="expense-item">
+                <div class="expense-item${exp.isRecurCopy ? ' recur-copy-item' : ''}">
                     <div class="expense-info">
-                        <div class="expense-title">${exp.title} ${shareInfo}</div>
+                        <div class="expense-title">${exp.title}${shareInfo}</div>
                         <div class="expense-meta">
                             <span class="type-badge ${typeClass}">${typeLabel}</span>
                             <span class="category-badge category-${exp.category}">${exp.category}</span>
                             <span class="payment-badge ${paymentClass}">${paymentName}</span>
                             ${exp.isRecurring ? `<span class="recurring-badge ${recurBadgeClass}">${recurBadgeText}</span>` : ''}
-                            <span>${date}</span>
+                            ${recurCopyBadge}
+                            <span style="color:var(--text-muted);font-size:0.75rem;">${date}</span>
                         </div>
                         ${recurControls}
                     </div>
-                    <div style="display: flex; align-items: center;">
+                    <div style="display:flex;align-items:center;">
                         <div class="expense-amount ${typeClass}">₹${myShare.toFixed(2)}</div>
                         <div class="expense-actions">
-                            <button class="icon-btn" onclick="deleteExpense(${index})" title="Delete"><i class="ph-trash-simple ph-bold" style="font-size:15px;"></i></button>
+                            <button class="icon-btn" onclick="deleteExpense(${index})" title="Delete">
+                                <i class="ph-trash-simple ph-bold" style="font-size:15px;"></i>
+                            </button>
                         </div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
         // Roommates
@@ -2095,22 +2269,25 @@
             const input = document.getElementById('quickAddInput').value.trim();
             if (!input) return;
 
-            // Support both "120 food" and "food 120"
-            const tokens = input.split(/\s+/);
-            let amount = NaN, titleParts = [];
+            // Parse out account from end of input
+            const { pmId, remaining: remainingTokens } = parseQuickAddAccount(input);
+            const tokens = remainingTokens;
 
+            // Extract amount (first number found)
+            let amount = NaN;
+            const nonAmountParts = [];
             tokens.forEach(t => {
                 const n = parseFloat(t);
                 if (!isNaN(n) && isNaN(amount)) amount = n;
-                else titleParts.push(t);
+                else nonAmountParts.push(t);
             });
 
             if (isNaN(amount) || amount <= 0) {
-                showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-warning ph-bold" style="font-size:15px;color:var(--warn);"></i><span>Format: "120 food" or "coffee 50"</span></span>');
+                showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-warning ph-bold" style="font-size:15px;color:var(--warn);"></i><span>Format: "120 food" or "50 bus cash"</span></span>');
                 return;
             }
 
-            const raw = titleParts.join(' ').toLowerCase().trim() || 'expense';
+            const raw = nonAmountParts.join(' ').toLowerCase().trim() || 'expense';
 
             // ── Comprehensive keyword map ──
             const rules = [
@@ -2247,18 +2424,22 @@
                 splitWith:    [],
                 customShares: null,
                 isRecurring:  false,
-                paymentMethod: bankAccounts.length > 0 ? bankAccounts[0].id : 'cash'
+                paymentMethod: pmId || (bankAccounts.length > 0 ? bankAccounts[0].id : 'cash')
             };
 
             expenses.push(expense);
             saveData();
             renderAll();
+            const pmName = expense.paymentMethod === 'cash' || !expense.paymentMethod ? 'Cash'
+                         : ([...bankAccounts,...creditCards].find(p=>p.id===expense.paymentMethod)||{name:'Cash'}).name;
             showSnackbar(
                 '<span style="display:inline-flex;align-items:center;gap:7px;">'
                 + '<i class="ph-check-circle ph-bold" style="font-size:15px;color:var(--primary);"></i>'
-                + '<span>₹' + amount + ' · ' + title + ' → <b>' + matchedCat + '</b></span></span>'
+                + '<span>₹' + amount + ' · ' + title + ' → <b>' + matchedCat + '</b> · ' + pmName + '</span></span>'
             );
             document.getElementById('quickAddInput').value = '';
+            const hint = document.getElementById('quickAddHint');
+            if (hint) hint.style.display = 'none';
         }
 
         // Modals
@@ -2726,72 +2907,341 @@
         }
 
         // ── Recurring Auto-Create ────────────────────────────────────
-        // Runs on every app load. For each active recurring expense,
-        // checks if a new entry is due today and creates it if not already logged.
         function checkAndAutoCreateRecurring() {
-            const today     = new Date();
-            const todayStr  = today.toISOString().split('T')[0];
-            const todayDay  = today.getDay();   // 0=Sun … 6=Sat
-            let created     = 0;
+            const now      = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            let created    = 0;
 
-            // Collect templates: only original recurring expenses (not auto-copies)
-            const templates = expenses.filter(e => e.isRecurring && e.recurStatus === 'active' && !e.isRecurCopy);
+            // Templates: isRecurring=true, not a copy, not paused/stopped
+            const templates = expenses.filter(e =>
+                e.isRecurring &&
+                !e.isRecurCopy &&
+                e.recurStatus !== 'paused' &&
+                e.recurStatus !== 'stopped'
+            );
 
             templates.forEach(tmpl => {
-                const freq       = tmpl.recurringFrequency;  // daily | weekly | monthly
-                const startDate  = new Date(tmpl.recurStartDate || tmpl.date);
-                const excluded   = tmpl.excludeDays || [];
+                const freq    = tmpl.recurringFrequency || 'monthly';
+                const startDt = new Date(tmpl.recurStartDate || tmpl.date);
+                startDt.setHours(0,0,0,0);
+                const todayDt = new Date(todayStr);
 
-                // Skip if today is an excluded day of week
-                if (excluded.includes(todayDay)) return;
+                // Must have started by today
+                if (startDt > todayDt) return;
 
-                // Skip if start date is in the future
-                if (startDate > today) return;
+                // Don't create on the SAME day as the template itself
+                if ((tmpl.recurStartDate || tmpl.date) === todayStr) return;
 
-                // Check if we already created a copy for today
-                const alreadyToday = expenses.some(
-                    e => e.isRecurCopy && e.recurTemplateId === tmpl.id && e.date === todayStr
-                );
-                if (alreadyToday) return;
+                // Check excluded days of week
+                const excluded = Array.isArray(tmpl.excludeDays) ? tmpl.excludeDays : [];
+                if (excluded.includes(now.getDay())) return;
 
-                let isDue = false;
+                // Is it due today?
+                let due = false;
                 if (freq === 'daily') {
-                    isDue = true;
+                    due = true;
                 } else if (freq === 'weekly') {
-                    // Same day of week as the start date
-                    isDue = today.getDay() === startDate.getDay();
+                    due = now.getDay() === startDt.getDay();
                 } else if (freq === 'monthly') {
-                    // Same day of month as the start date
-                    isDue = today.getDate() === startDate.getDate();
+                    // Same day of month; if month shorter, use last day
+                    const targetDay = startDt.getDate();
+                    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+                    due = now.getDate() === Math.min(targetDay, lastDayOfMonth);
                 }
+                if (!due) return;
 
-                if (isDue) {
-                    const copy = {
-                        ...tmpl,
-                        id:             Date.now().toString() + '_rc_' + created,
-                        date:           todayStr,
-                        isRecurCopy:    true,
-                        recurTemplateId:tmpl.id,
-                        recurStatus:    null,
-                        isRecurring:    false,   // copies are plain expenses
-                    };
-                    expenses.push(copy);
-                    created++;
-                }
+                // Already created for today?
+                const exists = expenses.some(e =>
+                    e.isRecurCopy &&
+                    e.recurTemplateId === tmpl.id &&
+                    e.date === todayStr
+                );
+                if (exists) return;
+
+                // Create copy
+                const copy = {
+                    id:               Date.now().toString() + '_rc' + created,
+                    title:            tmpl.title,
+                    amount:           tmpl.amount,
+                    category:         tmpl.category,
+                    date:             todayStr,
+                    isShared:         tmpl.isShared,
+                    splitMode:        tmpl.splitMode   || 'none',
+                    splitWith:        tmpl.splitWith   || [],
+                    customShares:     tmpl.customShares || null,
+                    paymentMethod:    tmpl.paymentMethod,
+                    isRecurring:      false,
+                    isRecurCopy:      true,
+                    recurTemplateId:  tmpl.id,
+                    recurringFrequency: tmpl.recurringFrequency,
+                };
+                expenses.push(copy);
+                created++;
             });
 
-            if (created > 0) {
-                saveData();
-                return created;
+            if (created > 0) saveData();
+            return created;
+        }
+
+        // ── Quick Add Account Hint ──────────────────────────────────
+        function updateQuickAddHint() {
+            const input = document.getElementById('quickAddInput').value.trim();
+            const hint  = document.getElementById('quickAddHint');
+            if (!hint) return;
+            if (!input) { hint.style.display = 'none'; return; }
+            const { account } = parseQuickAddAccount(input);
+            hint.style.display = 'block';
+            hint.innerHTML = account
+                ? `<i class="ph-credit-card ph-bold" style="font-size:12px;color:var(--primary);"></i> Using: <b style="color:var(--primary);">${account}</b>`
+                : `<i class="ph-info ph-bold" style="font-size:12px;color:var(--text-muted);"></i> Tip: end with <b>cash</b>, <b>sbi</b>, or any account name`;
+        }
+
+        function parseQuickAddAccount(input) {
+            const tokens   = input.trim().split(/\s+/);
+            const allPMs   = [
+                { id: 'cash', name: 'cash', aliases: ['cash', 'hand', 'wallet'] },
+                ...bankAccounts.map(b => ({ id: b.id, name: b.name, aliases: [b.name.toLowerCase(), b.id.toLowerCase()] })),
+                ...creditCards.map(c => ({ id: c.id, name: c.name, aliases: [c.name.toLowerCase(), c.id.toLowerCase()] })),
+            ];
+
+            let matchedPM = null;
+            let remaining = [...tokens];
+
+            // Check last 1-2 tokens for account name match
+            for (let take = 2; take >= 1; take--) {
+                if (tokens.length <= take) continue;
+                const candidate = tokens.slice(-take).join(' ').toLowerCase();
+                const found = allPMs.find(pm => pm.aliases.some(a => candidate.includes(a) || a.includes(candidate)));
+                if (found) {
+                    matchedPM = found;
+                    remaining = tokens.slice(0, tokens.length - take);
+                    break;
+                }
             }
-            return 0;
+
+            return { account: matchedPM ? matchedPM.name : null, pmId: matchedPM ? matchedPM.id : null, remaining };
+        }
+
+        // ── Calendar ──────────────────────────────────────────────────
+        let calYear  = new Date().getFullYear();
+        let calMonth = new Date().getMonth();
+        let calSelectedDay = null;
+
+        function navigateCalendar(dir) {
+            calMonth += dir;
+            if (calMonth > 11) { calMonth = 0; calYear++; }
+            if (calMonth < 0)  { calMonth = 11; calYear--; }
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            const dayNames   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            const labelEl    = document.getElementById('calMonthLabel');
+            if (labelEl) labelEl.textContent = monthNames[calMonth] + ' ' + calYear;
+
+            const firstDay   = new Date(calYear, calMonth, 1).getDay();
+            const daysInMon  = new Date(calYear, calMonth + 1, 0).getDate();
+            const today      = new Date();
+            const todayStr   = today.toISOString().split('T')[0];
+
+            // Build spend/income map for month
+            const spendMap = {};
+            expenses.filter(e => {
+                const d = new Date(e.date);
+                return d.getFullYear() === calYear && d.getMonth() === calMonth && !(e.isRecurring && !e.isRecurCopy);
+            }).forEach(e => {
+                const d = e.date.split('-')[2].replace(/^0/,'');
+                spendMap[d] = (spendMap[d] || 0) + getMyShare(e);
+            });
+
+            const grid = document.getElementById('calendarGrid');
+            if (!grid) return;
+
+            let html = '<div class="cal-grid">';
+            dayNames.forEach(d => html += `<div class="cal-day-header">${d}</div>`);
+
+            // Empty cells before month start
+            for (let i = 0; i < firstDay; i++) html += '<div class="cal-day other-month"></div>';
+
+            for (let d = 1; d <= daysInMon; d++) {
+                const dateStr   = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const isToday   = dateStr === todayStr;
+                const isSel     = calSelectedDay === dateStr;
+                const hasSpend  = spendMap[d] > 0;
+                let cls = 'cal-day';
+                if (isToday)  cls += ' today';
+                if (isSel)    cls += ' selected';
+                if (hasSpend) cls += ' has-expense';
+
+                const amt = hasSpend ? '₹' + spendMap[d].toFixed(0) : '';
+                html += `<div class="${cls}" onclick="selectCalDay('${dateStr}')">
+                    <span>${d}</span>
+                    ${amt ? `<div class="cal-day-amount">${amt}</div>` : ''}
+                </div>`;
+            }
+            html += '</div>';
+            grid.innerHTML = html;
+
+            // Show detail for selected day
+            if (calSelectedDay) renderCalDayDetail(calSelectedDay);
+            else {
+                const det = document.getElementById('calendarDayDetail');
+                if (det) det.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:0.85rem;padding:12px 0;"><i class="ph-calendar-blank ph-duotone" style="font-size:28px;opacity:0.3;display:block;margin-bottom:6px;"></i>Tap a day to see transactions</div>';
+            }
+        }
+
+        function selectCalDay(dateStr) {
+            calSelectedDay = dateStr;
+            renderCalendar();
+        }
+
+        function renderCalDayDetail(dateStr) {
+            const det = document.getElementById('calendarDayDetail');
+            if (!det) return;
+            const dayExpenses = expenses.filter(e => e.date === dateStr && !(e.isRecurring && !e.isRecurCopy));
+            const total       = dayExpenses.reduce((s, e) => s + getMyShare(e), 0);
+            const d           = new Date(dateStr);
+            const label       = d.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
+
+            if (dayExpenses.length === 0) {
+                det.innerHTML = `<div class="cal-detail-header">
+                    <div class="cal-detail-title">${label}</div>
+                    <div style="font-size:0.82rem;color:var(--text-muted);">No transactions</div>
+                </div>`;
+                return;
+            }
+
+            det.innerHTML = `
+                <div class="cal-detail-header">
+                    <div class="cal-detail-title">${label}</div>
+                    <div class="cal-detail-total">₹${total.toFixed(2)}</div>
+                </div>
+                ${dayExpenses.map((e, i) => {
+                    const realIdx = expenses.indexOf(e);
+                    return createExpenseHtml(e, realIdx);
+                }).join('')}`;
+        }
+
+        // ── Recurring Management ──────────────────────────────────────
+        function renderRecurringManagement() {
+            const list = document.getElementById('recurringManageList');
+            if (!list) return;
+
+            const templates = expenses.filter(e => e.isRecurring && !e.isRecurCopy);
+            if (templates.length === 0) {
+                list.innerHTML = `<div class="empty-state">
+                    <div class="empty-state-icon"><i class="ph-arrows-clockwise ph-duotone" style="font-size:40px;color:var(--accent);opacity:0.4;"></i></div>
+                    <p>No recurring schedules yet.<br>Add an expense and set a frequency.</p>
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = templates.map((tmpl, ti) => {
+                const tmplIdx   = expenses.indexOf(tmpl);
+                const copies    = expenses.filter(e => e.isRecurCopy && e.recurTemplateId === tmpl.id)
+                                          .sort((a,b) => b.date.localeCompare(a.date));
+                const freq      = (tmpl.recurringFrequency||'monthly');
+                const freqLabel = freq.charAt(0).toUpperCase() + freq.slice(1);
+                const status    = tmpl.recurStatus || 'active';
+                const statusColor = status === 'paused' ? 'var(--warn)' : status === 'stopped' ? 'var(--danger)' : 'var(--primary)';
+                const nextDue   = getNextDueDate(tmpl);
+
+                const pm = tmpl.paymentMethod === 'cash' || !tmpl.paymentMethod ? 'Cash'
+                         : ([...bankAccounts,...creditCards].find(p=>p.id===tmpl.paymentMethod)||{name:'Cash'}).name;
+
+                const copiesHtml = copies.length > 0 ? `
+                    <div class="recur-manage-copies">
+                        <div class="recur-manage-copies-title"><i class="ph-list ph-bold" style="font-size:11px;"></i> Auto-deducted entries (tap to delete a specific day)</div>
+                        ${copies.map(copy => {
+                            const ci = expenses.indexOf(copy);
+                            const dl = new Date(copy.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+                            return `<div class="recur-copy-row">
+                                <span class="recur-copy-date"><i class="ph-arrows-clockwise ph-bold" style="font-size:11px;color:var(--accent);"></i> ${dl}</span>
+                                <button class="recur-copy-del" onclick="deleteRecurCopy(${ci})">Delete</button>
+                            </div>`;
+                        }).join('')}
+                    </div>` : '';
+
+                return `<div class="recur-manage-item">
+                    <div class="recur-manage-header">
+                        <div>
+                            <div class="recur-manage-title">${tmpl.title}</div>
+                            <div class="recur-manage-meta">
+                                <i class="ph-arrows-clockwise ph-bold" style="font-size:11px;color:${statusColor};"></i>
+                                ${freqLabel} · ${pm} · ${tmpl.category}
+                                ${nextDue ? ` · Next: ${nextDue}` : ''}
+                            </div>
+                            <div style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap;">
+                                <span class="recurring-badge recur-${freq}" style="font-size:0.7rem;">${freqLabel}</span>
+                                <span style="padding:2px 9px;border-radius:50px;font-size:0.7rem;font-weight:700;background:${status==='active'?'rgba(0,212,160,0.1)':status==='paused'?'rgba(245,166,35,0.1)':'rgba(255,94,122,0.1)'};color:${statusColor};">${status.charAt(0).toUpperCase()+status.slice(1)}</span>
+                            </div>
+                        </div>
+                        <div class="recur-manage-amount" style="color:var(--danger);">₹${tmpl.amount.toFixed(2)}</div>
+                    </div>
+                    <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+                        ${status !== 'paused'
+                            ? `<button class="recur-ctrl-btn pause" onclick="recurringControl(${tmplIdx},'pause')"><i class="ph-pause ph-bold" style="font-size:12px;"></i> Pause</button>`
+                            : `<button class="recur-ctrl-btn resume" onclick="recurringControl(${tmplIdx},'resume')"><i class="ph-play ph-bold" style="font-size:12px;"></i> Resume</button>`}
+                        <button class="recur-ctrl-btn stop" onclick="recurringControl(${tmplIdx},'stop')"><i class="ph-stop ph-bold" style="font-size:12px;"></i> Stop</button>
+                        <button class="recur-ctrl-btn" style="border-color:var(--danger);color:var(--danger);" onclick="deleteExpense(${tmplIdx})"><i class="ph-trash ph-bold" style="font-size:12px;"></i> Delete Schedule</button>
+                    </div>
+                    ${copiesHtml}
+                </div>`;
+            }).join('');
+        }
+
+        function deleteRecurCopy(index) {
+            const copy = expenses[index];
+            if (!copy) return;
+            const dateLabel = new Date(copy.date).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+            if (!confirm(`Delete the ${copy.title} entry for ${dateLabel}?`)) return;
+            expenses.splice(index, 1);
+            saveData();
+            renderAll();
+            showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-trash ph-bold" style="font-size:15px;color:var(--danger);"></i><span>Entry for ' + dateLabel + ' deleted</span></span>');
+        }
+
+        function getNextDueDate(tmpl) {
+            const freq  = tmpl.recurringFrequency || 'monthly';
+            const start = new Date(tmpl.recurStartDate || tmpl.date);
+            const now   = new Date();
+            now.setHours(0,0,0,0);
+            const next  = new Date(now);
+            next.setDate(next.getDate() + 1); // start from tomorrow
+
+            if (freq === 'daily') {
+                // next un-excluded day
+                for (let i = 0; i < 7; i++) {
+                    const d = new Date(next); d.setDate(d.getDate() + i);
+                    const excl = Array.isArray(tmpl.excludeDays) ? tmpl.excludeDays : [];
+                    if (!excl.includes(d.getDay())) {
+                        return d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+                    }
+                }
+            } else if (freq === 'weekly') {
+                const target = start.getDay();
+                for (let i = 0; i < 7; i++) {
+                    const d = new Date(next); d.setDate(d.getDate() + i);
+                    if (d.getDay() === target) return d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+                }
+            } else if (freq === 'monthly') {
+                const target = start.getDate();
+                const candidate = new Date(now.getFullYear(), now.getMonth(), target);
+                if (candidate <= now) candidate.setMonth(candidate.getMonth() + 1);
+                return candidate.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+            }
+            return null;
         }
 
         // ── Clear Data ──────────────────────────────────────────────
         function clearAllData() {
-            if (!confirm('<i class="ph-warning ph-bold" style="font-size:14px;color:var(--warn)"></i> This will permanently delete ALL data — expenses, roommates, loans, payment methods, budget, and settlements. This cannot be undone.\n\nAre you absolutely sure?')) return;
+            if (!confirm('⚠️ This will permanently delete ALL data — expenses, roommates, loans, payment methods, budget, and settlements.\n\nThis cannot be undone. Are you absolutely sure?')) return;
             const secondConfirm = prompt('Type "DELETE" to confirm:');
-            if (secondConfirm !== 'DELETE') { showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-shield-check ph-bold" style="font-size:15px;color:var(--text-muted);"></i><span>Cancelled — data safe</span></span>'); return; }
+            if (secondConfirm !== 'DELETE') {
+                showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-shield-check ph-bold" style="font-size:15px;color:var(--text-muted);"></i><span>Cancelled — data safe</span></span>');
+                return;
+            }
             expenses = []; roommates = []; budget = 0; bankAccounts = [];
             creditCards = []; settlements = {}; loans = [];
             localStorage.clear();
