@@ -8,16 +8,18 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Expense Tracker">
-    <!-- PWA Android / Chrome -->
-    <meta name="theme-color" content="#00b894">
+    <!-- PWA Android -->
+    <meta name="theme-color" content="#00d4a0">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Expense Tracker">
-    <!-- PWA manifest (dynamic) -->
     <link rel="manifest" id="pwa-manifest">
-    <!-- Apple touch icons (inline SVG fallback) -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2300b894'/><text y='.9em' font-size='72' x='50%' text-anchor='middle'>💰</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2300d4a0'/><text y='.9em' font-size='72' x='50%' text-anchor='middle'>💰</text></svg>">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+    <!-- Fonts: preconnect + swap so text shows instantly even if fonts slow -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons: CSS font approach (works with dynamic innerHTML unlike JS version) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
@@ -31,6 +33,12 @@
         .ph-xl  i.ph { font-size:28px; }
         i.ph { line-height:1; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* System font fallbacks — UI renders immediately even if CDN fonts are slow/offline */
+        :root {
+            --font-display: 'Outfit', 'SF Pro Display', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font-body:    'Work Sans', 'SF Pro Text',  'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
 
         /* ── Light Theme ── */
         :root {
@@ -89,7 +97,7 @@
         html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: var(--font-body);
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
@@ -104,7 +112,7 @@
 
         /* ── Typography ── */
         h1 {
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--font-display);
             font-size: clamp(1.6rem, 5vw, 2.6rem);
             font-weight: 800;
             background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -153,7 +161,7 @@
         }
 
         .card-title {
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--font-display);
             font-size: 1.15rem; font-weight: 700;
             color: var(--text);
         }
@@ -194,7 +202,7 @@
             font-weight: 600; margin-bottom: 4px;
         }
         .stat-value {
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--font-display);
             font-size: 1.5rem; font-weight: 800;
             color: var(--text); letter-spacing: -0.5px;
         }
@@ -222,7 +230,7 @@
             border: 2px solid var(--divider);
             border-radius: var(--radius-sm);
             background: var(--input-bg); color: var(--text);
-            font-family: 'Work Sans', sans-serif; font-size: 0.95rem;
+            font-family: var(--font-body); font-size: 0.95rem;
             transition: var(--transition);
         }
         .quick-add-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
@@ -238,7 +246,7 @@
             padding: 8px 18px;
             background: var(--card-bg); border: 1.5px solid var(--divider);
             border-radius: 50px;
-            font-family: 'Work Sans', sans-serif; font-size: 0.85rem; font-weight: 600;
+            font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
             color: var(--text-sub); cursor: pointer; transition: var(--transition);
         }
         .time-filter-btn:hover { border-color: var(--primary); color: var(--primary); }
@@ -253,7 +261,7 @@
         /* ── Buttons ── */
         .btn {
             padding: 10px 20px; border: none; border-radius: var(--radius-sm);
-            font-family: 'Work Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
+            font-family: var(--font-body); font-size: 0.88rem; font-weight: 600;
             cursor: pointer; transition: var(--transition);
             letter-spacing: 0.2px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
         }
@@ -279,7 +287,7 @@
             border: 1.5px solid var(--divider);
             border-radius: var(--radius-sm);
             background: var(--input-bg); color: var(--text);
-            font-family: 'Work Sans', sans-serif; font-size: 0.95rem;
+            font-family: var(--font-body); font-size: 0.95rem;
             transition: var(--transition);
         }
         input:focus, select:focus, textarea:focus {
@@ -299,7 +307,7 @@
         .tabs::-webkit-scrollbar { display: none; }
         .tab {
             padding: 10px 18px; background: none; border: none;
-            font-family: 'Work Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
+            font-family: var(--font-body); font-size: 0.88rem; font-weight: 600;
             color: var(--text-muted); cursor: pointer; white-space: nowrap;
             position: relative; transition: var(--transition);
         }
@@ -321,7 +329,7 @@
         .expense-info { flex: 1; min-width: 0; }
         .expense-title { font-weight: 600; color: var(--text); margin-bottom: 5px; font-size: 0.93rem; }
         .expense-meta { font-size: 0.76rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-        .expense-amount { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; margin-right: 8px; }
+        .expense-amount { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; margin-right: 8px; }
         .expense-amount.personal { color: var(--primary); }
         .expense-amount.shared    { color: var(--accent); }
         .expense-actions { display: flex; gap: 4px; }
@@ -356,7 +364,7 @@
         .recur-btn {
             padding: 9px 8px; border: 1.5px solid var(--divider);
             border-radius: var(--radius-sm); background: var(--input-bg);
-            font-family: 'Work Sans', sans-serif; font-size: 0.82rem; font-weight: 600;
+            font-family: var(--font-body); font-size: 0.82rem; font-weight: 600;
             color: var(--text-sub); cursor: pointer; transition: var(--transition); text-align: center;
         }
         .recur-btn.active { border-color: var(--accent); background: rgba(124,106,247,0.12); color: var(--accent); }
@@ -371,7 +379,7 @@
         .recur-ctrl-btn {
             padding: 4px 12px; border-radius: 50px; border: 1.5px solid;
             font-size: 0.72rem; font-weight: 700; cursor: pointer;
-            font-family: 'Work Sans', sans-serif; transition: var(--transition); background: none;
+            font-family: var(--font-body); transition: var(--transition); background: none;
         }
         .recur-ctrl-btn.pause  { border-color: var(--warn); color: var(--warn); }
         .recur-ctrl-btn.resume { border-color: var(--primary); color: var(--primary); }
@@ -383,7 +391,7 @@
         .day-btn {
             flex-shrink: 0; padding: 7px 9px; border-radius: var(--radius-sm);
             border: 1.5px solid var(--divider); background: var(--card-bg);
-            font-family: 'Work Sans', sans-serif; font-size: 0.74rem; font-weight: 700;
+            font-family: var(--font-body); font-size: 0.74rem; font-weight: 700;
             color: var(--text-sub); cursor: pointer; transition: var(--transition); min-width: 38px; text-align: center;
         }
         .day-btn.excluded { border-color: var(--danger); background: rgba(255,94,122,0.12); color: var(--danger); }
@@ -393,7 +401,7 @@
         .roommate-item:hover { border-color: var(--primary-glow); }
         .roommate-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .roommate-name { font-weight: 700; color: var(--text); }
-        .roommate-balance { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.95rem; }
+        .roommate-balance { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; }
         .roommate-balance.positive { color: var(--primary); }
         .roommate-balance.negative { color: var(--danger); }
 
@@ -409,7 +417,7 @@
         .payment-method-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
         .payment-method-name { font-weight: 700; color: var(--text); font-size: 0.98rem; }
         .payment-method-type { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
-        .payment-method-amount { font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+        .payment-method-amount { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--primary); }
         .payment-method-amount.credit-card { color: var(--danger); }
         .due-date-warning { background: rgba(245,166,35,0.15); color: var(--warn); padding: 4px 10px; border-radius: var(--radius-sm); font-size: 0.76rem; font-weight: 700; margin-top: 5px; display: inline-block; border: 1px solid rgba(245,166,35,0.3); }
 
@@ -417,13 +425,13 @@
         .payment-summary-row { display: grid; gap: 10px; margin-bottom: 16px; }
         .payment-summary-box { padding: 14px; border-radius: var(--radius-md); text-align: center; border: 1.5px solid var(--divider); background: var(--bg2); }
         .ps-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-        .ps-amount { font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; }
+        .ps-amount { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; }
         .bank-amt { color: var(--primary); }
         .card-amt { color: var(--danger); }
 
         /* ── Filter rows ── */
         .pm-filter-row { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 14px; }
-        .pm-filter-btn { padding: 6px 14px; background: var(--bg2); border: 1.5px solid var(--divider); border-radius: 50px; font-family: 'Work Sans', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--text-sub); cursor: pointer; transition: var(--transition); white-space: nowrap; }
+        .pm-filter-btn { padding: 6px 14px; background: var(--bg2); border: 1.5px solid var(--divider); border-radius: 50px; font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; color: var(--text-sub); cursor: pointer; transition: var(--transition); white-space: nowrap; }
         .pm-filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; box-shadow: var(--shadow-glow); }
         .pm-filter-btn:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
         .pm-custom-date { background: var(--bg2); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 14px; }
@@ -431,8 +439,9 @@
 
         .donut-filter-row { display: flex; gap: 7px; margin-bottom: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
         .donut-filter-row::-webkit-scrollbar { display: none; }
-        .donut-filter-btn { flex-shrink: 0; padding: 6px 14px; border-radius: 50px; border: 1.5px solid var(--divider); background: var(--bg2); font-family: 'Work Sans', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--text-sub); cursor: pointer; transition: var(--transition); white-space: nowrap; }
-        .donut-filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; box-shadow: var(--shadow-glow); }
+        .donut-filter-btn { flex-shrink: 0; padding: 6px 14px; border-radius: 50px; border: 1.5px solid var(--divider); background: var(--bg2); font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; color: var(--text-sub); cursor: pointer; transition: var(--transition); white-space: nowrap; }
+        .donut-filter-btn2 { flex-shrink: 0; padding: 6px 14px; border-radius: 50px; border: 1.5px solid var(--divider); background: var(--bg2); font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; color: var(--text-sub); cursor: pointer; transition: var(--transition); white-space: nowrap; }
+        .donut-filter-btn.active, .donut-filter-btn2.active { background: var(--primary); border-color: var(--primary); color: white; box-shadow: var(--shadow-glow); }
 
         /* ── Charts ── */
         .chart { height: 180px; background: var(--bg2); border-radius: var(--radius-md); padding: 14px; margin-bottom: 12px; }
@@ -447,15 +456,15 @@
         .donut-svg { width: 180px; height: 180px; flex-shrink: 0; overflow: visible; }
         .donut-seg { transition: transform 0.22s ease, opacity 0.22s ease; transform-origin: 100px 100px; cursor: pointer; }
         .donut-seg:hover { transform: scale(1.06); }
-        .donut-total-label { font-family: 'Work Sans', sans-serif; font-size: 10px; fill: var(--text-muted); font-weight: 600; }
-        .donut-total-value { font-family: 'Outfit', sans-serif; font-size: 15px; fill: var(--text); font-weight: 800; }
+        .donut-total-label { font-family: var(--font-body); font-size: 10px; fill: var(--text-muted); font-weight: 600; }
+        .donut-total-value { font-family: var(--font-display); font-size: 15px; fill: var(--text); font-weight: 800; }
         .donut-legend { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
         .legend-item { display: flex; align-items: center; gap: 7px; padding: 5px 8px; border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); font-size: 0.8rem; }
         .legend-item:hover { background: var(--bg2); }
         .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
         .legend-icon { font-size: 0.85rem; flex-shrink: 0; }
         .legend-name { flex: 1; color: var(--text); text-transform: capitalize; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
-        .legend-amount { font-family: 'Outfit', sans-serif; font-weight: 700; color: var(--text); white-space: nowrap; }
+        .legend-amount { font-family: var(--font-display); font-weight: 700; color: var(--text); white-space: nowrap; }
         .legend-pct { color: var(--text-muted); font-size: 0.72rem; min-width: 30px; text-align: right; }
 
         /* ── Modal ── */
@@ -476,7 +485,7 @@
         .loan-active-box { border-color: rgba(245,166,35,0.3); background: rgba(245,166,35,0.07); }
         .loan-settled-box { border-color: rgba(0,212,160,0.3); background: rgba(0,212,160,0.07); }
         .loan-sum-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-        .loan-sum-val { font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; }
+        .loan-sum-val { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; }
         .loan-active-val { color: var(--warn); }
         .loan-settled-val { color: var(--primary); }
         .loan-item { padding: 14px; border: 1.5px solid var(--divider); border-radius: var(--radius-md); margin-bottom: 10px; background: var(--bg2); transition: var(--transition); }
@@ -486,7 +495,7 @@
         .loan-friend-name { font-weight: 800; font-size: 1.0rem; color: var(--text); }
         .loan-meta { font-size: 0.76rem; color: var(--text-muted); margin-top: 3px; }
         .loan-amount-col { text-align: right; flex-shrink: 0; }
-        .loan-lent { font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--warn); }
+        .loan-lent { font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; color: var(--warn); }
         .loan-remaining { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; }
         .loan-status-badge { display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 800; margin-top: 6px; letter-spacing: 0.3px; }
         .badge-pending  { background: rgba(245,166,35,0.15); color: var(--warn); border: 1px solid rgba(245,166,35,0.3); }
@@ -496,7 +505,7 @@
         .repayment-row { display: flex; justify-content: space-between; color: var(--text-muted); padding: 3px 0; }
         .repayment-row .rep-amt { color: var(--primary); font-weight: 700; }
         .loan-actions { display: flex; gap: 7px; margin-top: 12px; flex-wrap: wrap; }
-        .loan-btn { flex: 1; padding: 8px 12px; border-radius: var(--radius-sm); border: 1.5px solid; font-family: 'Work Sans', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; background: none; min-height: 36px; transition: var(--transition); }
+        .loan-btn { flex: 1; padding: 8px 12px; border-radius: var(--radius-sm); border: 1.5px solid; font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; cursor: pointer; background: none; min-height: 36px; transition: var(--transition); }
         .loan-btn-pay  { border-color: var(--primary); color: var(--primary); }
         .loan-btn-pay:hover  { background: var(--primary); color: white; }
         .loan-btn-full { border-color: var(--primary); color: var(--primary); background: rgba(0,212,160,0.08); }
@@ -509,7 +518,7 @@
         .split-mode-btn {
             flex:1; padding:9px 6px; border:1.5px solid var(--divider);
             border-radius:var(--radius-sm); background:var(--input-bg);
-            font-family:'Work Sans',sans-serif; font-size:0.8rem; font-weight:600;
+            font-family:var(--font-body); font-size:0.8rem; font-weight:600;
             color:var(--text-sub); cursor:pointer; transition:var(--transition); text-align:center;
         }
         .split-mode-btn.active { border-color:var(--accent); background:rgba(124,106,247,0.1); color:var(--accent); }
@@ -518,7 +527,7 @@
         .people-picker { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:10px; }
         .person-chip {
             padding:7px 14px; border-radius:50px; border:1.5px solid var(--divider);
-            background:var(--input-bg); font-family:'Work Sans',sans-serif;
+            background:var(--input-bg); font-family:var(--font-body);
             font-size:0.82rem; font-weight:600; color:var(--text-sub);
             cursor:pointer; transition:var(--transition);
         }
@@ -544,6 +553,19 @@
         .danger-zone { background:rgba(255,94,122,0.06); border:1.5px solid rgba(255,94,122,0.2); border-radius:var(--radius-md); padding:16px; margin-bottom:16px; }
         .danger-zone-title { font-weight:700; color:var(--danger); margin-bottom:4px; font-size:0.9rem; }
         .danger-zone-sub { font-size:0.78rem; color:var(--text-muted); margin-bottom:12px; }
+
+        /* ── Quick nav shortcuts (More section) ── */
+        .quick-nav-row {
+            display: flex; gap: 10px; margin-bottom: 16px;
+        }
+        .quick-nav-btn {
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+            padding: 14px 8px; background: var(--card-bg); border: 1.5px solid var(--card-border);
+            border-radius: var(--radius-md); cursor: pointer; transition: var(--transition);
+            font-family: var(--font-body); font-size: 0.75rem; font-weight: 600;
+            color: var(--text-sub); box-shadow: var(--shadow-sm);
+        }
+        .quick-nav-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
 
         /* ── Cash badge ── */
         .payment-badge.cash-badge { background:rgba(39,174,96,0.12); color:#27ae60; border:1px solid rgba(39,174,96,0.25); }
@@ -588,8 +610,8 @@
             display:flex; justify-content:space-between; align-items:center;
             padding-bottom:10px; border-bottom:1.5px solid var(--divider); margin-bottom:12px;
         }
-        .cal-detail-title { font-family:'Outfit',sans-serif; font-size:1rem; font-weight:700; }
-        .cal-detail-total { font-family:'Outfit',sans-serif; font-size:1.1rem; font-weight:800; color:var(--danger); }
+        .cal-detail-title { font-family:var(--font-display); font-size:1rem; font-weight:700; }
+        .cal-detail-total { font-family:var(--font-display); font-size:1.1rem; font-weight:800; color:var(--danger); }
 
         /* ── Recurring management ── */
         .recur-manage-item {
@@ -600,7 +622,7 @@
         .recur-manage-header { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
         .recur-manage-title { font-weight:700; font-size:0.95rem; color:var(--text); }
         .recur-manage-meta { font-size:0.75rem; color:var(--text-muted); margin-top:3px; }
-        .recur-manage-amount { font-family:'Outfit',sans-serif; font-size:1.1rem; font-weight:800; }
+        .recur-manage-amount { font-family:var(--font-display); font-size:1.1rem; font-weight:800; }
         .recur-manage-copies {
             margin-top:10px; border-top:1px solid var(--divider); padding-top:10px;
         }
@@ -687,7 +709,7 @@
                 flex: 1; display: flex; flex-direction: column; align-items: center;
                 justify-content: center; gap: 3px; background: none; border: none;
                 padding: 6px 4px; cursor: pointer; color: var(--text-muted);
-                font-family: 'Work Sans', sans-serif; font-size: 0.62rem; font-weight: 600;
+                font-family: var(--font-body); font-size: 0.62rem; font-weight: 600;
                 transition: var(--transition); min-height: 56px;
             }
             .nav-btn .nav-icon { font-size: 1.3rem; line-height: 1; }
@@ -870,53 +892,50 @@
 
         <!-- SECTION: Payments -->
         <div class="mobile-section" id="section-payments">
-            <!-- Payment Methods Section -->
-            <div class="card" style="margin-bottom: 20px;">
+            <!-- Payment Methods -->
+            <div class="card" style="margin-bottom:16px;">
                 <div class="card-header">
-                    <h2 class="card-title">Payment Methods</h2>
+                    <h2 class="card-title"><i class="ph-credit-card ph-duotone" style="font-size:18px;color:var(--primary);"></i> Payment Methods</h2>
                     <div class="btn-group">
                         <button class="btn btn-secondary btn-small" onclick="openAddBank()"><i class="ph-bank ph-bold" style="font-size:14px;"></i> Bank</button>
                         <button class="btn btn-secondary btn-small" onclick="openAddCreditCard()"><i class="ph-credit-card ph-bold" style="font-size:14px;"></i> Card</button>
                     </div>
                 </div>
                 <div class="pm-filter-row">
-                    <button class="pm-filter-btn" onclick="setPaymentFilter('week', this)">This Week</button>
-                    <button class="pm-filter-btn active" onclick="setPaymentFilter('month', this)">This Month</button>
-                    <button class="pm-filter-btn" onclick="setPaymentFilter('all', this)">All</button>
-                    <button class="pm-filter-btn" onclick="setPaymentFilter('custom', this)"><i class="ph-calendar-blank ph-bold" style="font-size:14px;"></i> Custom</button>
+                    <button class="pm-filter-btn" onclick="setPaymentFilter('week',this)">This Week</button>
+                    <button class="pm-filter-btn active" onclick="setPaymentFilter('month',this)">This Month</button>
+                    <button class="pm-filter-btn" onclick="setPaymentFilter('all',this)">All</button>
+                    <button class="pm-filter-btn" onclick="setPaymentFilter('custom',this)"><i class="ph-calendar-blank ph-bold" style="font-size:13px;"></i> Custom</button>
                 </div>
                 <div class="pm-custom-date" id="pmCustomDate" style="display:none;">
                     <div class="pm-date-row">
-                        <div class="form-group" style="margin:0;flex:1;">
-                            <label>From</label>
-                            <input type="date" id="pmDateFrom" onchange="renderPaymentMethods()">
-                        </div>
-                        <div class="form-group" style="margin:0;flex:1;">
-                            <label>To</label>
-                            <input type="date" id="pmDateTo" onchange="renderPaymentMethods()">
-                        </div>
+                        <div class="form-group" style="margin:0;flex:1;"><label>From</label><input type="date" id="pmDateFrom" onchange="renderPaymentMethods()"></div>
+                        <div class="form-group" style="margin:0;flex:1;"><label>To</label><input type="date" id="pmDateTo" onchange="renderPaymentMethods()"></div>
                     </div>
                 </div>
                 <div id="paymentMethodsList"></div>
             </div>
 
-            <!-- Category Chart -->
+            <!-- Spending by Category -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Spending by Category</h2>
+                    <h2 class="card-title"><i class="ph-chart-pie-slice ph-duotone" style="font-size:18px;color:var(--accent);"></i> Spending by Category</h2>
                 </div>
                 <div class="donut-filter-row">
-                    <button class="donut-filter-btn" onclick="setDonutFilter('today', this)">Today</button>
-                    <button class="donut-filter-btn" onclick="setDonutFilter('week', this)"><i class="ph-calendar" style="font-size:14px;"></i> Weekly</button>
-                    <button class="donut-filter-btn active" onclick="setDonutFilter('month', this)"><i class="ph-calendar-blank" style="font-size:14px;"></i> Monthly</button>
-                    <button class="donut-filter-btn" onclick="setDonutFilter('all', this)">All Time</button>
+                    <button class="donut-filter-btn" onclick="setDonutFilter('today',this)">Today</button>
+                    <button class="donut-filter-btn" onclick="setDonutFilter('week',this)">Weekly</button>
+                    <button class="donut-filter-btn active" onclick="setDonutFilter('month',this)">Monthly</button>
+                    <button class="donut-filter-btn" onclick="setDonutFilter('all',this)">All Time</button>
+                    <button class="donut-filter-btn" onclick="setDonutFilter('custom',this)"><i class="ph-calendar-blank ph-bold" style="font-size:12px;"></i> Custom</button>
+                </div>
+                <div class="pm-custom-date" id="donutCustomDate" style="display:none;">
+                    <div class="pm-date-row">
+                        <div class="form-group" style="margin:0;flex:1;"><label>From</label><input type="date" id="donutDateFrom" onchange="renderCategoryChart()"></div>
+                        <div class="form-group" style="margin:0;flex:1;"><label>To</label><input type="date" id="donutDateTo" onchange="renderCategoryChart()"></div>
+                    </div>
                 </div>
                 <div id="categoryChartContainer"></div>
             </div>
-        </div>
-
-        <!-- SECTION: Payments (moved inside More on mobile, kept for desktop) -->
-        <div class="mobile-section" id="section-payments" style="display:none;">
         </div>
 
         <!-- SECTION: Calendar -->
@@ -926,7 +945,7 @@
                     <h2 class="card-title"><i class="ph-calendar-dots ph-duotone" style="font-size:20px;color:var(--primary);"></i> Calendar View</h2>
                     <div style="display:flex;gap:8px;align-items:center;">
                         <button class="btn btn-secondary btn-small" id="calPrevBtn" onclick="navigateCalendar(-1)"><i class="ph-caret-left ph-bold" style="font-size:14px;"></i></button>
-                        <span id="calMonthLabel" style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.95rem;min-width:90px;text-align:center;"></span>
+                        <span id="calMonthLabel" style="font-family:var(--font-display);font-weight:700;font-size:0.95rem;min-width:90px;text-align:center;"></span>
                         <button class="btn btn-secondary btn-small" id="calNextBtn" onclick="navigateCalendar(1)"><i class="ph-caret-right ph-bold" style="font-size:14px;"></i></button>
                     </div>
                 </div>
@@ -945,63 +964,36 @@
 
         <!-- SECTION: More -->
         <div class="mobile-section" id="section-more">
-            <!-- Payment Methods (mobile: inside More) -->
-            <div class="card" style="margin-bottom:16px;">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="ph-credit-card ph-duotone" style="font-size:18px;color:var(--primary);"></i> Payment Methods</h2>
-                    <div class="btn-group">
-                        <button class="btn btn-secondary btn-small" onclick="openAddBank()"><i class="ph-bank ph-bold" style="font-size:14px;"></i> Bank</button>
-                        <button class="btn btn-secondary btn-small" onclick="openAddCreditCard()"><i class="ph-credit-card ph-bold" style="font-size:14px;"></i> Card</button>
-                    </div>
-                </div>
-                <div class="pm-filter-row">
-                    <button class="pm-filter-btn" onclick="setPaymentFilter('week',this)">This Week</button>
-                    <button class="pm-filter-btn active" onclick="setPaymentFilter('month',this)">This Month</button>
-                    <button class="pm-filter-btn" onclick="setPaymentFilter('all',this)">All</button>
-                    <button class="pm-filter-btn" onclick="setPaymentFilter('custom',this)"><i class="ph-calendar-blank ph-bold" style="font-size:13px;"></i> Custom</button>
-                </div>
-                <div class="pm-custom-date" id="pmCustomDate2" style="display:none;">
-                    <div class="pm-date-row">
-                        <div class="form-group" style="margin:0;flex:1;"><label>From</label><input type="date" id="pmDateFrom2" onchange="renderPaymentMethods()"></div>
-                        <div class="form-group" style="margin:0;flex:1;"><label>To</label><input type="date" id="pmDateTo2" onchange="renderPaymentMethods()"></div>
-                    </div>
-                </div>
-                <div id="paymentMethodsList"></div>
-            </div>
-
-            <!-- Category Chart -->
-            <div class="card" style="margin-bottom:16px;">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="ph-chart-pie-slice ph-duotone" style="font-size:18px;color:var(--accent);"></i> Spending by Category</h2>
-                </div>
-                <div class="donut-filter-row">
-                    <button class="donut-filter-btn" onclick="setDonutFilter('today',this)">Today</button>
-                    <button class="donut-filter-btn" onclick="setDonutFilter('week',this)">Weekly</button>
-                    <button class="donut-filter-btn active" onclick="setDonutFilter('month',this)">Monthly</button>
-                    <button class="donut-filter-btn" onclick="setDonutFilter('all',this)">All Time</button>
-                </div>
-                <div id="categoryChartContainer"></div>
-            </div>
             <div class="main-content desktop-main">
-                <div class="card" style="margin-bottom:15px;">
-                    <div class="card-header">
-                        <h2 class="card-title">Budget</h2>
-                        <button class="btn btn-secondary btn-small" onclick="openSetBudget()">Set</button>
-                    </div>
-                    <div class="card budget-card" style="margin-bottom:15px;">
-                        <div class="card-header" style="border-bottom:none;padding-bottom:0;margin-bottom:0;">
-                            <div>
-                                <h2 class="card-title">Monthly Budget</h2>
-                                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;" id="budgetMonthLabel2"></div>
-                            </div>
-                            <button class="btn btn-secondary btn-small" onclick="openSetBudget()"><i class="ph-gear-six ph-bold" style="font-size:14px;"></i> Set</button>
+                <div class="budget-card card" style="margin-bottom:15px;">
+                    <div class="card-header" style="border-bottom:none;padding-bottom:0;margin-bottom:0;">
+                        <div>
+                            <h2 class="card-title">Monthly Budget</h2>
+                            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;" id="budgetMonthLabel2"></div>
                         </div>
-                        <div id="budgetChart2"></div>
+                        <button class="btn btn-secondary btn-small" onclick="openSetBudget()"><i class="ph-gear-six ph-bold" style="font-size:14px;"></i> Set</button>
                     </div>
+                    <div id="budgetChart2"></div>
                 </div>
             </div>
 
-            <!-- Friends Loans -->
+            <!-- Quick Nav Shortcuts (mobile only) -->
+            <div class="quick-nav-row">
+                <button class="quick-nav-btn" onclick="switchSection('calendar')">
+                    <i class="ph-calendar-dots ph-duotone" style="font-size:22px;color:var(--accent);"></i>
+                    <span>Calendar</span>
+                </button>
+                <button class="quick-nav-btn" onclick="switchSection('calendar')">
+                    <i class="ph-arrows-clockwise ph-duotone" style="font-size:22px;color:var(--accent);"></i>
+                    <span>Recurring</span>
+                </button>
+                <button class="quick-nav-btn" onclick="switchSection('payments')">
+                    <i class="ph-chart-pie-slice ph-duotone" style="font-size:22px;color:var(--primary);"></i>
+                    <span>Analytics</span>
+                </button>
+            </div>
+
+            <!-- Friend Loans -->
             <div class="card" style="margin-bottom:16px;">
                 <div class="card-header">
                     <h2 class="card-title"><i class="ph-handshake ph-duotone" style="font-size:18px;color:var(--primary)"></i> Friend Loans</h2>
@@ -1038,11 +1030,10 @@
             <div style="text-align:center; padding: 24px 0 8px; user-select:none;">
                 <div style="display:inline-flex; align-items:center; gap:8px; background:var(--card-bg); border:1.5px solid var(--divider); border-radius:50px; padding:10px 20px; box-shadow:var(--shadow-sm);">
                     <span style="font-size:1rem;">&#10022;</span>
-                    <span style="font-family:'Outfit',sans-serif; font-size:0.88rem; font-weight:700; background:linear-gradient(135deg,var(--primary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; letter-spacing:0.3px;">crafted by @anshid</span>
+                    <span style="font-family:var(--font-display); font-size:0.88rem; font-weight:700; background:linear-gradient(135deg,var(--primary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; letter-spacing:0.3px;">crafted by @anshid</span>
                     <span style="font-size:1rem;">&#10022;</span>
                 </div>
             </div>
-        </div>
         </div>
 
         <!-- Actions (desktop only) -->
@@ -1066,9 +1057,9 @@
             <span class="nav-icon"><i class="ph-plus-circle ph-fill" style="font-size:28px;color:white;"></i></span>
             Add
         </button>
-        <button class="nav-btn" id="nav-calendar" onclick="switchSection('calendar')">
-            <span class="nav-icon"><i class="ph-calendar-dots ph-duotone" style="font-size:24px;"></i></span>
-            Calendar
+        <button class="nav-btn" id="nav-payments" onclick="switchSection('payments')">
+            <span class="nav-icon"><i class="ph-credit-card ph-duotone" style="font-size:24px;"></i></span>
+            Payments
         </button>
         <button class="nav-btn" id="nav-more" onclick="switchSection('more')">
             <span class="nav-icon"><i class="ph-dots-three-outline ph-duotone" style="font-size:24px;"></i></span>
@@ -1308,62 +1299,101 @@
     <script>
         // ── PWA Setup ──────────────────────────────────────────────
         (function initPWA() {
-            // Inject manifest via blob URL
-            const manifest = {
-                name: "Student Finance Pro",
+            // ── Manifest (inline JSON — avoids blob URL issues on iOS Safari) ──
+            const manifestData = {
+                name: "Finance Pro",
                 short_name: "Finance Pro",
                 description: "Track expenses, split bills, manage budgets",
                 start_url: location.href,
+                scope: location.href,
                 display: "standalone",
                 orientation: "portrait",
-                background_color: "#f5f6fa",
-                theme_color: "#00b894",
+                background_color: "#0d0f17",
+                theme_color: "#00d4a0",
                 icons: [
-                    { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2300b894'/><text y='.9em' font-size='72' x='50%' text-anchor='middle'>💰</text></svg>", sizes: "192x192", type: "image/svg+xml" },
-                    { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2300b894'/><text y='.9em' font-size='72' x='50%' text-anchor='middle'>💰</text></svg>", sizes: "512x512", type: "image/svg+xml" }
-                ]
+                    { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2300d4a0'/><text y='.9em' font-size='72' x='50%' text-anchor='middle'>💰</text></svg>", sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+                    { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2300d4a0'/><text y='.9em' font-size='72' x='50%' text-anchor='middle'>💰</text></svg>", sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+                ],
+                categories: ["finance", "productivity"],
+                lang: "en"
             };
-            const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-            document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+            try {
+                const blob = new Blob([JSON.stringify(manifestData)], { type: 'application/manifest+json' });
+                const manifestEl = document.getElementById('pwa-manifest');
+                if (manifestEl) manifestEl.href = URL.createObjectURL(blob);
+            } catch(e) {}
 
-            // Register service worker (inline via blob)
-            if ('serviceWorker' in navigator) {
+            // ── Service Worker — caches app + ALL external assets for offline use ──
+            if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+                const CACHE_VER = 'fp-v3';
+                const ASSETS_TO_CACHE = [
+                    location.href,
+                    'https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap',
+                    'https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css',
+                    'https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css',
+                    'https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css',
+                    'https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css',
+                ];
+
                 const swCode = `
-                    const CACHE = 'sfp-cache-v1';
-                    const OFFLINE_URLS = [self.location.href.replace(/\\/sw.*/, '')];
+                    const CACHE = '${CACHE_VER}';
                     self.addEventListener('install', e => {
                         e.waitUntil(
-                            caches.open(CACHE).then(c => c.addAll(['/'])).catch(() => {})
+                            caches.open(CACHE).then(c => {
+                                return Promise.allSettled(
+                                    ${JSON.stringify(ASSETS_TO_CACHE)}.map(url =>
+                                        c.add(new Request(url, { mode: 'no-cors' })).catch(() => {})
+                                    )
+                                );
+                            })
                         );
                         self.skipWaiting();
                     });
                     self.addEventListener('activate', e => {
-                        e.waitUntil(caches.keys().then(keys =>
-                            Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-                        ));
-                        self.clients.claim();
+                        e.waitUntil(
+                            caches.keys().then(keys =>
+                                Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+                            ).then(() => self.clients.claim())
+                        );
                     });
                     self.addEventListener('fetch', e => {
                         if (e.request.method !== 'GET') return;
-                        e.respondWith(
-                            caches.match(e.request).then(cached => {
-                                const network = fetch(e.request).then(res => {
-                                    if (res && res.status === 200 && e.request.url.startsWith('http')) {
-                                        caches.open(CACHE).then(c => c.put(e.request, res.clone()));
-                                    }
+                        // Cache-first for assets, network-first for the app page
+                        const isAppPage = e.request.url === self.location.href.split('/sw')[0] || e.request.mode === 'navigate';
+                        if (isAppPage) {
+                            e.respondWith(
+                                fetch(e.request).then(res => {
+                                    const clone = res.clone();
+                                    caches.open(CACHE).then(c => c.put(e.request, clone)).catch(()=>{});
                                     return res;
-                                }).catch(() => cached);
-                                return cached || network;
-                            })
-                        );
+                                }).catch(() => caches.match(e.request))
+                            );
+                        } else {
+                            e.respondWith(
+                                caches.match(e.request).then(cached => {
+                                    if (cached) return cached;
+                                    return fetch(e.request).then(res => {
+                                        if (res && res.status === 200) {
+                                            const clone = res.clone();
+                                            caches.open(CACHE).then(c => c.put(e.request, clone)).catch(()=>{});
+                                        }
+                                        return res;
+                                    }).catch(() => new Response('', { status: 503 }));
+                                })
+                            );
+                        }
                     });
                 `;
-                const swBlob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(swBlob);
-                navigator.serviceWorker.register(swUrl).catch(() => {});
+                try {
+                    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                    const swUrl  = URL.createObjectURL(swBlob);
+                    navigator.serviceWorker.register(swUrl)
+                        .then(() => navigator.serviceWorker.ready)
+                        .catch(() => {});
+                } catch(e) {}
             }
 
-            // iOS: show install hint in "More" section
+            // ── iOS install hint ──
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             if (isIOS && !isStandalone) {
@@ -1408,20 +1438,32 @@
             const navBtn  = document.getElementById('nav-' + name);
             if (section) section.classList.add('active');
             if (navBtn)  navBtn.classList.add('active');
+            // Trigger section-specific renders
+            if (name === 'payments') {
+                renderPaymentMethods();
+                renderCategoryChart();
+            }
             if (name === 'calendar') {
                 renderCalendar();
                 renderRecurringManagement();
+            }
+            if (name === 'more') {
+                renderLoans();
+                renderBudgetChart();
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // On desktop, show all sections
         function ensureDesktopLayout() {
-            if (window.innerWidth > 768) {
-                document.querySelectorAll('.mobile-section').forEach(s => s.style.display = 'block');
-            } else {
-                document.querySelectorAll('.mobile-section').forEach(s => s.style.display = '');
-            }
+            const isDesktop = window.innerWidth > 768;
+            document.querySelectorAll('.mobile-section').forEach(s => {
+                if (isDesktop) {
+                    s.style.display = 'block';
+                } else {
+                    s.style.display = '';  // Let CSS handle it via .active class
+                }
+            });
         }
         window.addEventListener('resize', ensureDesktopLayout);
 
@@ -1474,6 +1516,12 @@
             localStorage.setItem('loans',        JSON.stringify(loans));
         }
 
+        // Returns only actual spend entries — excludes recurring templates (isRecurring:true, isRecurCopy:false)
+        // Templates are management objects; copies (isRecurCopy:true) are the real deductions
+        function realExpenses() {
+            return expenses.filter(e => !(e.isRecurring && !e.isRecurCopy));
+        }
+
         function renderAll() {
             updatePaymentMethodDropdown();
             renderDashboard();
@@ -1484,7 +1532,11 @@
             renderPaymentMethods();
             renderLoans();
             renderRecurringManagement();
-            renderCalendar();
+            // Only render calendar if section is active (performance)
+            const calSec = document.getElementById('section-calendar');
+            if (calSec && (calSec.classList.contains('active') || window.innerWidth > 768)) {
+                renderCalendar();
+            }
         }
 
         // Time Filter
@@ -1545,73 +1597,86 @@
         }
 
         // Day exclusion picker
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.day-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    btn.classList.toggle('excluded');
-                    const excluded = [...document.querySelectorAll('.day-btn.excluded')].map(b => parseInt(b.dataset.day));
-                    document.getElementById('excludeDays').value = JSON.stringify(excluded);
-                });
-            });
+        // day-btn listeners (delegated — no duplicate DOMContentLoaded needed)
+        document.addEventListener('click', e => {
+            if (e.target.classList.contains('day-btn')) {
+                e.target.classList.toggle('excluded');
+                const excluded = [...document.querySelectorAll('.day-btn.excluded')].map(b => parseInt(b.dataset.day));
+                const el = document.getElementById('excludeDays');
+                if (el) el.value = JSON.stringify(excluded);
+            }
         });
 
         // Payment Methods filter
         function setPaymentFilter(filter, btn) {
             currentPaymentFilter = filter;
             document.querySelectorAll('.pm-filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if (btn) btn.classList.add('active');
             const customRow = document.getElementById('pmCustomDate');
-            if (filter === 'custom') {
-                customRow.style.display = 'block';
-                // Set default dates if empty
-                const today = new Date().toISOString().split('T')[0];
-                const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
-                if (!document.getElementById('pmDateFrom').value) document.getElementById('pmDateFrom').value = monthStart;
-                if (!document.getElementById('pmDateTo').value) document.getElementById('pmDateTo').value = today;
-            } else {
-                customRow.style.display = 'none';
+            if (customRow) {
+                if (filter === 'custom') {
+                    customRow.style.display = 'block';
+                    const today      = new Date().toISOString().split('T')[0];
+                    const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const fromEl = document.getElementById('pmDateFrom');
+                    const toEl   = document.getElementById('pmDateTo');
+                    if (fromEl && !fromEl.value) fromEl.value = monthStart;
+                    if (toEl   && !toEl.value)   toEl.value   = today;
+                } else {
+                    customRow.style.display = 'none';
+                }
             }
             renderPaymentMethods();
         }
 
         function getPaymentFilteredExpenses() {
-            const now = new Date();
-            if (currentPaymentFilter === 'all') return expenses;
-            if (currentPaymentFilter === 'week') {
-                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                return expenses.filter(exp => new Date(exp.date) >= weekAgo);
-            }
-            if (currentPaymentFilter === 'month') {
-                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-                return expenses.filter(exp => new Date(exp.date) >= monthStart);
-            }
+            const now  = new Date();
+            const base = realExpenses();
+            if (currentPaymentFilter === 'all')   return base;
+            if (currentPaymentFilter === 'week')  { const w = new Date(now.getTime()-7*24*60*60*1000); return base.filter(e=>new Date(e.date)>=w); }
+            if (currentPaymentFilter === 'month') { const m = new Date(now.getFullYear(),now.getMonth(),1); return base.filter(e=>new Date(e.date)>=m); }
             if (currentPaymentFilter === 'custom') {
                 const from = document.getElementById('pmDateFrom')?.value;
-                const to = document.getElementById('pmDateTo')?.value;
-                return expenses.filter(exp => {
-                    if (from && exp.date < from) return false;
-                    if (to && exp.date > to) return false;
-                    return true;
-                });
+                const to   = document.getElementById('pmDateTo')?.value;
+                return base.filter(e => (!from || e.date >= from) && (!to || e.date <= to));
             }
-            return expenses;
+            return base;
         }
 
         // Donut chart filter
         function setDonutFilter(filter, btn) {
             currentDonutFilter = filter;
             document.querySelectorAll('.donut-filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if (btn) btn.classList.add('active');
+
+            const customPanel = document.getElementById('donutCustomDate');
+            if (customPanel) {
+                customPanel.style.display = filter === 'custom' ? 'block' : 'none';
+                if (filter === 'custom') {
+                    const today = new Date().toISOString().split('T')[0];
+                    const mStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const f = document.getElementById('donutDateFrom');
+                    const t = document.getElementById('donutDateTo');
+                    if (f && !f.value) f.value = mStart;
+                    if (t && !t.value) t.value = today;
+                }
+            }
             renderCategoryChart();
         }
 
         function getDonutFilteredExpenses() {
-            const now = new Date();
+            const now   = new Date();
             const today = now.toISOString().split('T')[0];
-            if (currentDonutFilter === 'today')  return expenses.filter(e => e.date === today);
-            if (currentDonutFilter === 'week')   { const w = new Date(now - 7*86400000); return expenses.filter(e => new Date(e.date) >= w); }
-            if (currentDonutFilter === 'month')  { const m = new Date(now.getFullYear(), now.getMonth(), 1); return expenses.filter(e => new Date(e.date) >= m); }
-            return expenses;
+            const base  = realExpenses();
+            if (currentDonutFilter === 'today')  return base.filter(e => e.date === today);
+            if (currentDonutFilter === 'week')   { const w = new Date(now - 7*86400000); return base.filter(e => new Date(e.date) >= w); }
+            if (currentDonutFilter === 'month')  { const m = new Date(now.getFullYear(), now.getMonth(), 1); return base.filter(e => new Date(e.date) >= m); }
+            if (currentDonutFilter === 'custom') {
+                const from = document.getElementById('donutDateFrom')?.value;
+                const to   = document.getElementById('donutDateTo')?.value;
+                return base.filter(e => (!from || e.date >= from) && (!to || e.date <= to));
+            }
+            return base;
         }
 
         // Calculate MY share only
@@ -1633,12 +1698,13 @@
             const filteredExpenses = getFilteredExpenses();
             const now = new Date();
 
-            const totalSpent  = expenses.reduce((s, e) => s + getMyShare(e), 0);
-            const periodSpent = filteredExpenses.reduce((s, e) => s + getMyShare(e), 0);
+            const real         = realExpenses();
+            const totalSpent   = real.reduce((s, e) => s + getMyShare(e), 0);
+            const periodSpent  = filteredExpenses.reduce((s, e) => s + getMyShare(e), 0);
 
-            // Budget left = this calendar month vs budget
+            // Budget left — always this calendar month vs budget
             const mStart     = new Date(now.getFullYear(), now.getMonth(), 1);
-            const monthSpent = expenses.filter(e => new Date(e.date) >= mStart).reduce((s,e) => s+getMyShare(e), 0);
+            const monthSpent = real.filter(e => new Date(e.date) >= mStart).reduce((s,e) => s+getMyShare(e), 0);
             const budgetLeft = budget > 0 ? budget - monthSpent : null;
 
             // Owed to me
@@ -1648,7 +1714,7 @@
             }, 0);
 
             // Period label
-            const labelMap   = { today:"Today's Spend", week:"This Week", month:"This Month", all:"All-time", recurring:"Recurring" };
+            const labelMap = { today:"Today's Spend", week:"This Week", month:"This Month", all:"All-time", recurring:"Recurring" };
             const periodLabelEl = document.getElementById('periodLabel');
             if (periodLabelEl) periodLabelEl.textContent = labelMap[currentTimeFilter] || 'This Period';
 
@@ -1666,9 +1732,9 @@
                 if (budgetCurrEl) budgetCurrEl.style.display = '';
                 const pct = monthSpent / budget;
                 if (budgetLeftEl) {
-                    budgetLeftEl.textContent  = budgetLeft.toFixed(2);
+                    budgetLeftEl.textContent   = budgetLeft.toFixed(2);
                     budgetLeftEl.style.fontSize = '';
-                    budgetLeftEl.style.color  = pct >= 1 ? 'var(--danger)' : pct >= 0.8 ? 'var(--warn)' : 'var(--primary)';
+                    budgetLeftEl.style.color   = pct >= 1 ? 'var(--danger)' : pct >= 0.8 ? 'var(--warn)' : 'var(--primary)';
                 }
             }
         }
@@ -1792,7 +1858,7 @@
                     : `You owe ₹${absBalance.toFixed(2)}`;
 
                 // Count shared expenses this person is in
-                const sharedCount = expenses.filter(e => {
+                const sharedCount = realExpenses().filter(e => {
                     if (!e.isShared) return false;
                     const all = !e.splitWith || e.splitWith.length === 0;
                     return all || (e.splitWith && e.splitWith.includes(rm.name));
@@ -1806,7 +1872,7 @@
                             <div class="roommate-detail">${sharedCount} shared expense${sharedCount!==1?'s':''}</div>
                         </div>
                         <div style="text-align:right;">
-                            <div style="font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:800;color:${balanceColor};">${balanceLabel}</div>
+                            <div style="font-family:var(--font-display);font-size:1.05rem;font-weight:800;color:${balanceColor};">${balanceLabel}</div>
                             ${!isZero && (settlements[rm.name]||0)>0 ? `<div style="font-size:0.72rem;color:var(--text-muted);">₹${(settlements[rm.name]||0).toFixed(2)} already settled</div>` : ''}
                         </div>
                     </div>
@@ -1822,24 +1888,18 @@
         }
 
         function calculateRoommateBalance(name) {
-            // Sum what THIS roommate owes me from shared expenses they're included in
             let owesMe = 0;
-            expenses.filter(exp => exp.isShared).forEach(exp => {
+            realExpenses().filter(exp => exp.isShared).forEach(exp => {
                 const includedAll  = !exp.splitWith || exp.splitWith.length === 0;
                 const includedThis = includedAll || exp.splitWith.includes(name);
                 if (!includedThis) return;
-
                 if (exp.splitMode === 'custom' && exp.customShares) {
                     owesMe += exp.customShares[name] || 0;
                 } else {
-                    // Equal split
-                    const participants = includedAll
-                        ? roommates.length + 1
-                        : exp.splitWith.length + 1;
+                    const participants = includedAll ? roommates.length + 1 : exp.splitWith.length + 1;
                     owesMe += exp.amount / participants;
                 }
             });
-            // Subtract what's already been settled
             owesMe -= (settlements[name] || 0);
             return owesMe;
         }
@@ -1981,11 +2041,14 @@
             });
 
             list.innerHTML = html;
+            // Mirror to second container (desktop / More section)
+            const list2 = document.getElementById('paymentMethodsList2');
+            if (list2) list2.innerHTML = html;
         }
 
         function deletePaymentMethod(type, idx) {
             const name = type === 'bank' ? bankAccounts[idx].name : creditCards[idx].name;
-            if (!confirm(`Delete "${name}"? Expenses using it will show "Unknown".`)) return;
+            if (!confirm(`Delete "${name}"? Expenses using it will show as Cash.`)) return;
             if (type === 'bank') bankAccounts.splice(idx, 1);
             else creditCards.splice(idx, 1);
             saveData();
@@ -2050,9 +2113,9 @@
             const year = now.getFullYear(), month = now.getMonth();
             const daysInMonth = new Date(year, month+1, 0).getDate();
             const todayDay    = now.getDate();
-            // Build cumulative daily spending
+            // Build cumulative daily spending (exclude recurring templates)
             const cum = Array(daysInMonth+1).fill(0);
-            expenses.filter(e => {
+            realExpenses().filter(e => {
                 const d = new Date(e.date);
                 return d.getFullYear()===year && d.getMonth()===month;
             }).forEach(e => {
@@ -2156,7 +2219,7 @@
                 : '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 2px 0;gap:8px;flex-wrap:wrap;">'
                   +'<div style="display:flex;flex-direction:column;gap:1px;">'
                   +'<span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Spent</span>'
-                  +'<span style="font-family:Outfit,sans-serif;font-size:1.1rem;font-weight:800;color:'+accent+';">₹'+monthSpent.toFixed(0)+'</span>'
+                  +'<span style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;color:'+accent+';">₹'+monthSpent.toFixed(0)+'</span>'
                   +'</div>'
                   +'<div style="display:flex;align-items:center;gap:6px;background:var(--bg2);padding:6px 14px;border-radius:50px;border:1.5px solid var(--divider);">'
                   +'<i class="ph-'+picon+' ph-bold" style="font-size:13px;color:'+pcol+';"></i>'
@@ -2165,15 +2228,12 @@
                   +'</div>'
                   +'<div style="display:flex;flex-direction:column;gap:1px;text-align:right;">'
                   +'<span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">'+llbl+'</span>'
-                  +'<span style="font-family:Outfit,sans-serif;font-size:1.1rem;font-weight:800;color:'+lcol+';">₹'+lval+'</span>'
+                  +'<span style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;color:'+lcol+';">₹'+lval+'</span>'
                   +'</div></div>';
             const html = '<div style="padding:12px 4px 4px;">'+svg+footer+'</div>';
             ['budgetChart','budgetChart2'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=html;});
         }
         function renderCategoryChart() {
-            const container = document.getElementById('categoryChartContainer');
-            if (!container) return;
-
             const CAT_META = {
                 rent:          { color: '#74b9ff', icon: 'home' },
                 food:          { color: '#ff9f7f', icon: 'fork-knife' },
@@ -2194,58 +2254,53 @@
 
             const grandTotal = cats.reduce((s, c) => s + c.total, 0);
 
+            let html;
             if (grandTotal === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-chart-pie-slice ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4"></i></div><p>No spending data yet</p></div>';
-                return;
-            }
+                html = '<div class="empty-state"><div class="empty-state-icon"><i class="ph-chart-pie-slice ph-duotone" style="font-size:40px;color:var(--primary);opacity:0.4"></i></div><p>No spending data yet</p></div>';
+            } else {
+                const cx = 100, cy = 100, R = 80, r = 50;
+                let angle = -Math.PI / 2;
+                const GAP = 0.025;
 
-            // Build SVG donut
-            const cx = 100, cy = 100, R = 80, r = 50;
-            let angle = -Math.PI / 2;
-            const GAP = 0.025; // radians gap between segments
+                function pt(cx, cy, radius, a) { return [cx + radius * Math.cos(a), cy + radius * Math.sin(a)]; }
+                function seg(start, end, R, r, color, index) {
+                    const s = start + GAP/2, e = end - GAP/2;
+                    const [ox1,oy1] = pt(cx,cy,R,s), [ox2,oy2] = pt(cx,cy,R,e);
+                    const [ix1,iy1] = pt(cx,cy,r,e), [ix2,iy2] = pt(cx,cy,r,s);
+                    const large = (e-s) > Math.PI ? 1 : 0;
+                    const d = `M${ox1},${oy1} A${R},${R} 0 ${large} 1 ${ox2},${oy2} L${ix1},${iy1} A${r},${r} 0 ${large} 0 ${ix2},${iy2} Z`;
+                    return `<path d="${d}" fill="${color}" class="donut-seg" data-i="${index}" onclick="highlightSegment(${index})" style="cursor:pointer;transition:transform 0.22s ease;transform-origin:100px 100px;"><title>${cats[index].cat}: ₹${cats[index].total.toFixed(0)}</title></path>`;
+                }
 
-            function pt(cx, cy, radius, a) {
-                return [cx + radius * Math.cos(a), cy + radius * Math.sin(a)];
-            }
+                const paths = cats.map((c, i) => {
+                    const sweep = (c.total/grandTotal) * 2 * Math.PI;
+                    const path  = seg(angle, angle+sweep, R, r, c.color, i);
+                    angle += sweep;
+                    return path;
+                }).join('');
 
-            function seg(start, end, R, r, color, index) {
-                const s = start + GAP / 2, e = end - GAP / 2;
-                const [ox1, oy1] = pt(cx, cy, R, s);
-                const [ox2, oy2] = pt(cx, cy, R, e);
-                const [ix1, iy1] = pt(cx, cy, r, e);
-                const [ix2, iy2] = pt(cx, cy, r, s);
-                const large = (e - s) > Math.PI ? 1 : 0;
-                const d = `M${ox1},${oy1} A${R},${R} 0 ${large} 1 ${ox2},${oy2} L${ix1},${iy1} A${r},${r} 0 ${large} 0 ${ix2},${iy2} Z`;
-                return `<path d="${d}" fill="${color}" class="donut-seg" data-i="${index}"
-                    onclick="highlightSegment(${index})" style="cursor:pointer">
-                    <title>${cats[index].cat}: ₹${cats[index].total.toFixed(0)}</title></path>`;
-            }
+                const legend = cats.map((c, i) => `
+                    <div class="legend-item" onclick="highlightSegment(${i})">
+                        <span class="legend-dot" style="background:${c.color}"></span>
+                        <span class="legend-icon"><i class="ph-${c.icon} ph-duotone" style="font-size:14px;color:${c.color};"></i></span>
+                        <span class="legend-name">${c.cat}</span>
+                        <span class="legend-amount">₹${c.total.toFixed(0)}</span>
+                        <span class="legend-pct">${((c.total/grandTotal)*100).toFixed(0)}%</span>
+                    </div>`).join('');
 
-            const paths = cats.map((c, i) => {
-                const sweep = (c.total / grandTotal) * 2 * Math.PI;
-                const path = seg(angle, angle + sweep, R, r, c.color, i);
-                angle += sweep;
-                return path;
-            }).join('');
-
-            const legend = cats.map((c, i) => `
-                <div class="legend-item" onclick="highlightSegment(${i})">
-                    <span class="legend-dot" style="background:${c.color}"></span>
-                    <span class="legend-icon"><i class="ph-${c.icon} ph-duotone" style="font-size:14px;color:${c.color};"></i></span>
-                    <span class="legend-name">${c.cat}</span>
-                    <span class="legend-amount">₹${c.total.toFixed(0)}</span>
-                    <span class="legend-pct">${((c.total / grandTotal) * 100).toFixed(0)}%</span>
-                </div>`).join('');
-
-            container.innerHTML = `
-                <div class="donut-chart-wrap">
-                    <svg viewBox="0 0 200 200" class="donut-svg" id="donutSvg">
+                html = `<div class="donut-chart-wrap">
+                    <svg viewBox="0 0 200 200" class="donut-svg">
                         ${paths}
                         <text x="100" y="95" text-anchor="middle" class="donut-total-label">TOTAL</text>
                         <text x="100" y="116" text-anchor="middle" class="donut-total-value">₹${grandTotal.toFixed(0)}</text>
                     </svg>
                     <div class="donut-legend">${legend}</div>
                 </div>`;
+            }
+
+            // Write to category chart container
+            const container = document.getElementById('categoryChartContainer');
+            if (container) container.innerHTML = html;
         }
 
         function highlightSegment(idx) {
@@ -2411,7 +2466,7 @@
             }
 
             // Title = raw input capitalised (or fallback to category)
-            const title = (titleParts.join(' ') || matchedCat).replace(/\b\w/g, l => l.toUpperCase());
+            const title = (nonAmountParts.join(' ') || matchedCat).replace(/\b\w/g, l => l.toUpperCase());
 
             const expense = {
                 id:           Date.now().toString(),
@@ -2629,6 +2684,13 @@
 
             expenses.push(expense);
             saveData();
+
+            // If this is a recurring expense, immediately create today's copy so it shows up now
+            if (expense.isRecurring) {
+                const created = checkAndAutoCreateRecurring();
+                if (created > 0) saveData();
+            }
+
             renderAll();
             
             closeModal('addExpenseModal');
@@ -2641,7 +2703,11 @@
             document.getElementById('excludeDays').value = '[]';
             document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('excluded'));
             setSplitMode('none');
-            showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-check-circle ph-bold" style="font-size:15px;color:var(--primary);"></i><span>Expense added</span></span>');
+
+            const addedMsg = expense.isRecurring
+                ? 'Recurring expense added · Today\'s ₹' + expense.amount + ' auto-deducted'
+                : 'Expense added';
+            showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-check-circle ph-bold" style="font-size:15px;color:var(--primary);"></i><span>' + addedMsg + '</span></span>');
         }
 
         function recurringControl(index, action) {
@@ -2923,14 +2989,12 @@
             templates.forEach(tmpl => {
                 const freq    = tmpl.recurringFrequency || 'monthly';
                 const startDt = new Date(tmpl.recurStartDate || tmpl.date);
-                startDt.setHours(0,0,0,0);
+                startDt.setHours(0, 0, 0, 0);
                 const todayDt = new Date(todayStr);
+                todayDt.setHours(0, 0, 0, 0);
 
-                // Must have started by today
+                // Must have started by today (inclusive)
                 if (startDt > todayDt) return;
-
-                // Don't create on the SAME day as the template itself
-                if ((tmpl.recurStartDate || tmpl.date) === todayStr) return;
 
                 // Check excluded days of week
                 const excluded = Array.isArray(tmpl.excludeDays) ? tmpl.excludeDays : [];
@@ -2943,14 +3007,13 @@
                 } else if (freq === 'weekly') {
                     due = now.getDay() === startDt.getDay();
                 } else if (freq === 'monthly') {
-                    // Same day of month; if month shorter, use last day
-                    const targetDay = startDt.getDate();
-                    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+                    const targetDay      = startDt.getDate();
+                    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
                     due = now.getDate() === Math.min(targetDay, lastDayOfMonth);
                 }
                 if (!due) return;
 
-                // Already created for today?
+                // Already created a copy for today? (duplicate guard)
                 const exists = expenses.some(e =>
                     e.isRecurCopy &&
                     e.recurTemplateId === tmpl.id &&
@@ -2958,21 +3021,21 @@
                 );
                 if (exists) return;
 
-                // Create copy
+                // Create today's copy — this is the actual expense entry that shows up
                 const copy = {
-                    id:               Date.now().toString() + '_rc' + created,
-                    title:            tmpl.title,
-                    amount:           tmpl.amount,
-                    category:         tmpl.category,
-                    date:             todayStr,
-                    isShared:         tmpl.isShared,
-                    splitMode:        tmpl.splitMode   || 'none',
-                    splitWith:        tmpl.splitWith   || [],
-                    customShares:     tmpl.customShares || null,
-                    paymentMethod:    tmpl.paymentMethod,
-                    isRecurring:      false,
-                    isRecurCopy:      true,
-                    recurTemplateId:  tmpl.id,
+                    id:                 Date.now().toString() + '_rc' + created,
+                    title:              tmpl.title,
+                    amount:             tmpl.amount,
+                    category:           tmpl.category,
+                    date:               todayStr,
+                    isShared:           tmpl.isShared,
+                    splitMode:          tmpl.splitMode    || 'none',
+                    splitWith:          tmpl.splitWith    || [],
+                    customShares:       tmpl.customShares || null,
+                    paymentMethod:      tmpl.paymentMethod,
+                    isRecurring:        false,   // copy is a plain expense
+                    isRecurCopy:        true,
+                    recurTemplateId:    tmpl.id,
                     recurringFrequency: tmpl.recurringFrequency,
                 };
                 expenses.push(copy);
@@ -3045,11 +3108,11 @@
             const today      = new Date();
             const todayStr   = today.toISOString().split('T')[0];
 
-            // Build spend/income map for month
+            // Build spend map for month (templates excluded)
             const spendMap = {};
-            expenses.filter(e => {
+            realExpenses().filter(e => {
                 const d = new Date(e.date);
-                return d.getFullYear() === calYear && d.getMonth() === calMonth && !(e.isRecurring && !e.isRecurCopy);
+                return d.getFullYear() === calYear && d.getMonth() === calMonth;
             }).forEach(e => {
                 const d = e.date.split('-')[2].replace(/^0/,'');
                 spendMap[d] = (spendMap[d] || 0) + getMyShare(e);
@@ -3099,7 +3162,7 @@
         function renderCalDayDetail(dateStr) {
             const det = document.getElementById('calendarDayDetail');
             if (!det) return;
-            const dayExpenses = expenses.filter(e => e.date === dateStr && !(e.isRecurring && !e.isRecurCopy));
+            const dayExpenses = realExpenses().filter(e => e.date === dateStr);
             const total       = dayExpenses.reduce((s, e) => s + getMyShare(e), 0);
             const d           = new Date(dateStr);
             const label       = d.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
