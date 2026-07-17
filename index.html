@@ -1301,8 +1301,8 @@
         (function initPWA() {
             // ── Manifest (inline JSON — avoids blob URL issues on iOS Safari) ──
             const manifestData = {
-                name: "Finance Pro",
-                short_name: "Finance Pro",
+                name: "Expense Tracker",
+                short_name: "Expense Tracker",
                 description: "Track expenses, split bills, manage budgets",
                 start_url: location.href,
                 scope: location.href,
@@ -1476,6 +1476,9 @@
         let creditCards = JSON.parse(localStorage.getItem('creditCards')) || [];
         let settlements = JSON.parse(localStorage.getItem('settlements')) || {};
         let loans       = JSON.parse(localStorage.getItem('loans'))       || [];
+        // Tracks dates where user intentionally deleted a recurring copy
+        // { templateId: ['2025-07-15', ...] }
+        let recurSkipDates = JSON.parse(localStorage.getItem('recurSkipDates')) || {};
         let currentTimeFilter   = 'month';
         let currentPaymentFilter = 'month';
         let currentDonutFilter   = 'month';
@@ -1507,13 +1510,14 @@
         });
 
         function saveData() {
-            localStorage.setItem('expenses',     JSON.stringify(expenses));
-            localStorage.setItem('roommates',    JSON.stringify(roommates));
-            localStorage.setItem('budget',       budget.toString());
-            localStorage.setItem('bankAccounts', JSON.stringify(bankAccounts));
-            localStorage.setItem('creditCards',  JSON.stringify(creditCards));
-            localStorage.setItem('settlements',  JSON.stringify(settlements));
-            localStorage.setItem('loans',        JSON.stringify(loans));
+            localStorage.setItem('expenses',        JSON.stringify(expenses));
+            localStorage.setItem('roommates',       JSON.stringify(roommates));
+            localStorage.setItem('budget',          budget.toString());
+            localStorage.setItem('bankAccounts',    JSON.stringify(bankAccounts));
+            localStorage.setItem('creditCards',     JSON.stringify(creditCards));
+            localStorage.setItem('settlements',     JSON.stringify(settlements));
+            localStorage.setItem('loans',           JSON.stringify(loans));
+            localStorage.setItem('recurSkipDates',  JSON.stringify(recurSkipDates));
         }
 
         // Returns only actual spend entries — excludes recurring templates (isRecurring:true, isRecurCopy:false)
@@ -2342,7 +2346,15 @@
                 return;
             }
 
-            const raw = nonAmountParts.join(' ').toLowerCase().trim() || 'expense';
+            const raw = nonAmountParts.join(' ').toLowerCase().trim();
+
+            // Word-boundary aware keyword matcher — prevents 'pen' matching inside 'expense'
+            function wordMatch(text, key) {
+                if (!text) return false;
+                if (key.includes(' ')) return text.includes(key);   // multi-word: substring ok
+                // Single word: must appear as a whole word
+                return new RegExp('(?:^|\\s)' + key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:\\s|$)').test(text);
+            }
 
             // ── Comprehensive keyword map ──
             const rules = [
@@ -2452,20 +2464,22 @@
                   cat: 'personal' },
             ];
 
-            // ── Smart matching: check if raw input contains any keyword ──
+            // Match category — empty raw goes straight to 'other'
             let matchedCat = 'other';
             let matchedKey = '';
-            outer: for (const rule of rules) {
-                for (const key of rule.keys) {
-                    if (raw.includes(key)) {
-                        matchedCat = rule.cat;
-                        matchedKey = key;
-                        break outer;
+            if (raw) {
+                outer: for (const rule of rules) {
+                    for (const key of rule.keys) {
+                        if (wordMatch(raw, key)) {
+                            matchedCat = rule.cat;
+                            matchedKey = key;
+                            break outer;
+                        }
                     }
                 }
             }
 
-            // Title = raw input capitalised (or fallback to category)
+            // Title = raw input capitalised (or fallback to matchedCat)
             const title = (nonAmountParts.join(' ') || matchedCat).replace(/\b\w/g, l => l.toUpperCase());
 
             const expense = {
@@ -2727,12 +2741,30 @@
         }
 
         function deleteExpense(index) {
-            if (confirm('Delete this expense?')) {
-                expenses.splice(index, 1);
-                saveData();
-                renderAll();
-                showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-trash ph-bold" style="font-size:15px;color:var(--danger);"></i><span>Expense deleted</span></span>');
+            const exp = expenses[index];
+            if (!exp) return;
+
+            // If deleting a recurring auto-copy, record the skip so it won't re-appear on next open
+            if (exp.isRecurCopy && exp.recurTemplateId && exp.date) {
+                if (!recurSkipDates[exp.recurTemplateId]) recurSkipDates[exp.recurTemplateId] = [];
+                if (!recurSkipDates[exp.recurTemplateId].includes(exp.date)) {
+                    recurSkipDates[exp.recurTemplateId].push(exp.date);
+                }
             }
+
+            if (!confirm('Delete this expense?')) {
+                // Undo the skip record if user cancels
+                if (exp.isRecurCopy && exp.recurTemplateId) {
+                    const arr = recurSkipDates[exp.recurTemplateId];
+                    if (arr) recurSkipDates[exp.recurTemplateId] = arr.filter(d => d !== exp.date);
+                }
+                return;
+            }
+
+            expenses.splice(index, 1);
+            saveData();
+            renderAll();
+            showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-trash ph-bold" style="font-size:15px;color:var(--danger);"></i><span>Expense deleted</span></span>');
         }
 
         function setBudget(e) {
@@ -3013,7 +3045,10 @@
                 }
                 if (!due) return;
 
-                // Already created a copy for today? (duplicate guard)
+                // Already created OR intentionally skipped today?
+                const skippedToday = (recurSkipDates[tmpl.id] || []).includes(todayStr);
+                if (skippedToday) return;
+
                 const exists = expenses.some(e =>
                     e.isRecurCopy &&
                     e.recurTemplateId === tmpl.id &&
@@ -3060,29 +3095,28 @@
         }
 
         function parseQuickAddAccount(input) {
-            const tokens   = input.trim().split(/\s+/);
-            const allPMs   = [
-                { id: 'cash', name: 'cash', aliases: ['cash', 'hand', 'wallet'] },
-                ...bankAccounts.map(b => ({ id: b.id, name: b.name, aliases: [b.name.toLowerCase(), b.id.toLowerCase()] })),
-                ...creditCards.map(c => ({ id: c.id, name: c.name, aliases: [c.name.toLowerCase(), c.id.toLowerCase()] })),
+            const tokens = input.trim().split(/\s+/);
+            const allPMs = [
+                { id: 'cash', name: 'Cash', aliases: ['cash', 'hand', 'wallet'] },
+                ...bankAccounts.map(b => ({ id: b.id, name: b.name, aliases: [b.name.toLowerCase()] })),
+                ...creditCards.map(c => ({ id: c.id, name: c.name, aliases: [c.name.toLowerCase()] })),
             ];
 
-            let matchedPM = null;
-            let remaining = [...tokens];
-
-            // Check last 1-2 tokens for account name match
-            for (let take = 2; take >= 1; take--) {
-                if (tokens.length <= take) continue;
-                const candidate = tokens.slice(-take).join(' ').toLowerCase();
-                const found = allPMs.find(pm => pm.aliases.some(a => candidate.includes(a) || a.includes(candidate)));
+            // Only check the LAST single token — prevents "food cash" from eating "food"
+            if (tokens.length >= 2) {
+                const lastToken = tokens[tokens.length - 1].toLowerCase();
+                const found = allPMs.find(pm =>
+                    pm.aliases.some(a => a === lastToken)   // exact match only
+                );
                 if (found) {
-                    matchedPM = found;
-                    remaining = tokens.slice(0, tokens.length - take);
-                    break;
+                    return {
+                        account: found.name,
+                        pmId:    found.id,
+                        remaining: tokens.slice(0, -1)     // remove only last token
+                    };
                 }
             }
-
-            return { account: matchedPM ? matchedPM.name : null, pmId: matchedPM ? matchedPM.id : null, remaining };
+            return { account: null, pmId: null, remaining: tokens };
         }
 
         // ── Calendar ──────────────────────────────────────────────────
@@ -3306,7 +3340,7 @@
                 return;
             }
             expenses = []; roommates = []; budget = 0; bankAccounts = [];
-            creditCards = []; settlements = {}; loans = [];
+            creditCards = []; settlements = {}; loans = []; recurSkipDates = {};
             localStorage.clear();
             renderAll();
             showSnackbar('<span style="display:inline-flex;align-items:center;gap:7px;"><i class="ph-trash ph-bold" style="font-size:15px;color:var(--danger);"></i><span>All data cleared</span></span>');
@@ -3334,7 +3368,7 @@
             const data = {
                 expenses, roommates, budget,
                 bankAccounts, creditCards, settlements,
-                loans,
+                loans, recurSkipDates,
                 exportDate: new Date().toISOString()
             };
             
@@ -3361,13 +3395,14 @@
                     const data = JSON.parse(e.target.result);
                     
                     if (confirm('This will replace all data. Continue?')) {
-                        expenses    = data.expenses    || [];
-                        roommates   = data.roommates   || [];
-                        budget      = data.budget      || 0;
-                        bankAccounts= data.bankAccounts|| [];
-                        creditCards = data.creditCards || [];
-                        settlements = data.settlements || {};
-                        loans       = data.loans       || [];
+                        expenses       = data.expenses       || [];
+                        roommates      = data.roommates      || [];
+                        budget         = data.budget         || 0;
+                        bankAccounts   = data.bankAccounts   || [];
+                        creditCards    = data.creditCards    || [];
+                        settlements    = data.settlements    || {};
+                        loans          = data.loans          || [];
+                        recurSkipDates = data.recurSkipDates || {};
                         
                         saveData();
                         renderAll();
