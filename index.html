@@ -432,7 +432,16 @@
         .pm-filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; box-shadow: var(--shadow-glow); }
         .pm-filter-btn:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
         .pm-custom-date { background: var(--bg2); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 14px; }
-        .pm-date-row { display: flex; gap: 12px; }
+        .pm-date-row { display: flex; gap: 10px; }
+        .pm-date-row .form-group { min-width: 0; flex: 1; }
+        .pm-date-row .form-group input[type="date"] {
+            width: 100%; min-width: 0; box-sizing: border-box;
+            font-size: 0.82rem; padding: 8px 10px;
+        }
+        @media (max-width: 420px) {
+            .pm-date-row { flex-direction: column; gap: 8px; }
+            .pm-date-row .form-group { flex: unset; }
+        }
 
         .donut-filter-row { display: flex; gap: 7px; margin-bottom: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
         .donut-filter-row::-webkit-scrollbar { display: none; }
@@ -943,10 +952,11 @@
             <div class="card" style="margin-bottom:16px;">
                 <div class="card-header">
                     <h2 class="card-title"><i class="ph-calendar-dots ph-duotone" style="font-size:20px;color:var(--primary);"></i> Calendar View</h2>
-                    <div style="display:flex;gap:8px;align-items:center;">
+                    <div style="display:flex;gap:6px;align-items:center;">
                         <button class="btn btn-secondary btn-small" id="calPrevBtn" onclick="navigateCalendar(-1)"><i class="ph-caret-left ph-bold" style="font-size:14px;"></i></button>
-                        <span id="calMonthLabel" style="font-family:var(--font-display);font-weight:700;font-size:0.95rem;min-width:90px;text-align:center;"></span>
+                        <span id="calMonthLabel" style="font-family:var(--font-display);font-weight:700;font-size:0.9rem;min-width:88px;text-align:center;"></span>
                         <button class="btn btn-secondary btn-small" id="calNextBtn" onclick="navigateCalendar(1)"><i class="ph-caret-right ph-bold" style="font-size:14px;"></i></button>
+                        <button class="btn btn-primary btn-small" style="padding:6px 10px;font-size:0.78rem;" title="Add expense for selected date" onclick="openAddExpense(calSelectedDay||localDateStr())"><i class="ph-plus ph-bold" style="font-size:13px;"></i></button>
                     </div>
                 </div>
                 <div id="calendarGrid"></div>
@@ -1323,11 +1333,11 @@
                 if (manifestEl) manifestEl.href = URL.createObjectURL(blob);
             } catch(e) {}
 
-            // ── Service Worker — caches app + ALL external assets for offline use ──
+            // ── Service Worker — full offline support ──
             if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-                const CACHE_VER = 'fp-v3';
-                const ASSETS_TO_CACHE = [
-                    location.href,
+                const CACHE_VER  = 'fp-v5';
+                const APP_URL    = location.href.split('?')[0].split('#')[0]; // canonical app URL
+                const CDN_ASSETS = [
                     'https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap',
                     'https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css',
                     'https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css',
@@ -1336,61 +1346,114 @@
                 ];
 
                 const swCode = `
-                    const CACHE = '${CACHE_VER}';
+                    const CACHE   = '${CACHE_VER}';
+                    const APP_URL = '${APP_URL}';
+
+                    // ── INSTALL: cache app shell + CDN assets ──
                     self.addEventListener('install', e => {
+                        self.skipWaiting();
                         e.waitUntil(
-                            caches.open(CACHE).then(c => {
-                                return Promise.allSettled(
-                                    ${JSON.stringify(ASSETS_TO_CACHE)}.map(url =>
-                                        c.add(new Request(url, { mode: 'no-cors' })).catch(() => {})
+                            caches.open(CACHE).then(async cache => {
+                                // Cache the app HTML itself (same-origin, normal mode)
+                                try { await cache.add(new Request(APP_URL, { cache: 'reload' })); } catch(err) {}
+                                // Cache CDN assets with no-cors (opaque responses still serve offline)
+                                await Promise.allSettled(
+                                    ${JSON.stringify(CDN_ASSETS)}.map(url =>
+                                        cache.add(new Request(url, { mode: 'no-cors', cache: 'no-cache' })).catch(() => {})
                                     )
                                 );
                             })
                         );
-                        self.skipWaiting();
                     });
+
+                    // ── ACTIVATE: clear old caches ──
                     self.addEventListener('activate', e => {
                         e.waitUntil(
-                            caches.keys().then(keys =>
-                                Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-                            ).then(() => self.clients.claim())
+                            caches.keys()
+                                .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+                                .then(() => self.clients.claim())
                         );
                     });
+
+                    // ── FETCH: stale-while-revalidate for app, cache-first for assets ──
                     self.addEventListener('fetch', e => {
                         if (e.request.method !== 'GET') return;
-                        // Cache-first for assets, network-first for the app page
-                        const isAppPage = e.request.url === self.location.href.split('/sw')[0] || e.request.mode === 'navigate';
-                        if (isAppPage) {
+                        const url = e.request.url;
+
+                        // Navigation / app page → network first, fall back to cache
+                        const isNav = e.request.mode === 'navigate' ||
+                                      url === APP_URL ||
+                                      url.startsWith(APP_URL + '?');
+                        if (isNav) {
                             e.respondWith(
                                 fetch(e.request).then(res => {
-                                    const clone = res.clone();
-                                    caches.open(CACHE).then(c => c.put(e.request, clone)).catch(()=>{});
+                                    if (res && res.status === 200) {
+                                        const clone = res.clone();
+                                        caches.open(CACHE).then(c => c.put(e.request, clone)).catch(() => {});
+                                    }
                                     return res;
-                                }).catch(() => caches.match(e.request))
+                                }).catch(() =>
+                                    caches.match(APP_URL).then(cached =>
+                                        cached || caches.match(e.request)
+                                    )
+                                )
                             );
-                        } else {
+                            return;
+                        }
+
+                        // CDN fonts / icons → cache first, then network (update in background)
+                        const isCDN = url.includes('fonts.googleapis.com') ||
+                                      url.includes('fonts.gstatic.com') ||
+                                      url.includes('cdn.jsdelivr.net') ||
+                                      url.includes('unpkg.com');
+                        if (isCDN) {
                             e.respondWith(
                                 caches.match(e.request).then(cached => {
-                                    if (cached) return cached;
-                                    return fetch(e.request).then(res => {
-                                        if (res && res.status === 200) {
-                                            const clone = res.clone();
-                                            caches.open(CACHE).then(c => c.put(e.request, clone)).catch(()=>{});
+                                    const networkFetch = fetch(e.request, { mode: 'no-cors' }).then(res => {
+                                        if (res) {
+                                            caches.open(CACHE).then(c => c.put(e.request, res.clone())).catch(() => {});
                                         }
                                         return res;
-                                    }).catch(() => new Response('', { status: 503 }));
+                                    }).catch(() => null);
+                                    return cached || networkFetch;
                                 })
                             );
+                            return;
                         }
+
+                        // Everything else → cache first
+                        e.respondWith(
+                            caches.match(e.request).then(cached => {
+                                if (cached) return cached;
+                                return fetch(e.request).then(res => {
+                                    if (res && (res.status === 200 || res.type === 'opaque')) {
+                                        caches.open(CACHE).then(c => c.put(e.request, res.clone())).catch(() => {});
+                                    }
+                                    return res;
+                                }).catch(() => new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } }));
+                            })
+                        );
                     });
                 `;
+
                 try {
                     const swBlob = new Blob([swCode], { type: 'application/javascript' });
                     const swUrl  = URL.createObjectURL(swBlob);
-                    navigator.serviceWorker.register(swUrl)
-                        .then(() => navigator.serviceWorker.ready)
+                    navigator.serviceWorker.register(swUrl, { scope: '/' })
+                        .then(reg => {
+                            // If a new SW is waiting, activate it right away on next load
+                            if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                            reg.addEventListener('updatefound', () => {
+                                const newSW = reg.installing;
+                                if (newSW) newSW.addEventListener('statechange', () => {
+                                    if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+                                        newSW.postMessage({ type: 'SKIP_WAITING' });
+                                    }
+                                });
+                            });
+                        })
                         .catch(() => {});
-                } catch(e) {}
+                } catch(err) {}
             }
 
             // ── iOS install hint ──
@@ -2530,7 +2593,12 @@
         }
 
         // Modals
-        function openAddExpense() {
+        function openAddExpense(presetDate) {
+            // Reset date field to today or to the calendar-selected date
+            const dateInput = document.getElementById('expenseDate');
+            if (dateInput) {
+                dateInput.value = presetDate || localDateStr();
+            }
             document.getElementById('addExpenseModal').classList.add('active');
             updateSplitPreview();
         }
@@ -3219,18 +3287,24 @@
             const d           = parseLocalDate(dateStr);
             const label       = d.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
 
+            const addBtn = `<button class="btn btn-primary btn-small" style="font-size:0.78rem;padding:6px 14px;" onclick="openAddExpense('${dateStr}')"><i class="ph-plus ph-bold" style="font-size:12px;"></i> Add for this day</button>`;
+
             if (dayExpenses.length === 0) {
                 det.innerHTML = `<div class="cal-detail-header">
                     <div class="cal-detail-title">${label}</div>
-                    <div style="font-size:0.82rem;color:var(--text-muted);">No transactions</div>
-                </div>`;
+                    ${addBtn}
+                </div>
+                <div style="text-align:center;color:var(--text-muted);font-size:0.82rem;padding:10px 0 4px;">No transactions</div>`;
                 return;
             }
 
             det.innerHTML = `
                 <div class="cal-detail-header">
                     <div class="cal-detail-title">${label}</div>
-                    <div class="cal-detail-total">₹${total.toFixed(2)}</div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <div class="cal-detail-total">₹${total.toFixed(2)}</div>
+                        ${addBtn}
+                    </div>
                 </div>
                 ${dayExpenses.map((e, i) => {
                     const realIdx = expenses.indexOf(e);
